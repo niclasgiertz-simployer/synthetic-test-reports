@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthetic User Test — Sia Playground</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242836;
+    --border: #2e3344;
+    --text: #e4e6ed;
+    --text-muted: #8b8fa3;
+    --accent: #6c8cff;
+    --accent-dim: rgba(108,140,255,0.12);
+    --red: #ff6b6b;
+    --red-dim: rgba(255,107,107,0.12);
+    --yellow: #ffd166;
+    --yellow-dim: rgba(255,209,102,0.12);
+    --green: #06d6a0;
+    --green-dim: rgba(6,214,160,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    padding: 32px 40px 0;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .meta-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .pill {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .pill.persona {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-top: 28px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tab-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    padding: 12px 22px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 40px 60px;
+  }
+
+  .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Score summary */
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .score-card .emoji { font-size: 24px; margin-bottom: 6px; }
+  .score-card .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .score-card .rating { font-size: 14px; font-weight: 600; margin-top: 4px; }
+  .score-card .rating.good { color: var(--green); }
+  .score-card .rating.mixed { color: var(--yellow); }
+  .score-card .rating.bad { color: var(--red); }
+
+  /* Dimension cards */
+  .dimension {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+
+  .dimension-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .dimension-header .icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .dimension-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .dimension-header .badge {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+
+  .dimension blockquote {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    border-left: 3px solid var(--border);
+    padding-left: 16px;
+    font-style: italic;
+  }
+
+  .dimension blockquote + blockquote {
+    margin-top: 12px;
+  }
+
+  /* Friction list */
+  .friction-list { list-style: none; }
+
+  .friction-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .friction-item .severity {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .friction-item .friction-content { flex: 1; }
+
+  .friction-item .friction-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .friction-item .friction-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .severity-label {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Friction map table */
+  .map-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .map-table th {
+    background: var(--surface2);
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .map-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .map-table tr:last-child td { border-bottom: none; }
+
+  .map-table .area { font-weight: 600; color: var(--text); }
+
+  .map-table .cell-indicator {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .map-table .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-red { background: var(--red); }
+
+  .map-table .cell-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Improvements */
+  .priority-section {
+    margin-bottom: 28px;
+  }
+
+  .priority-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+
+  .priority-label.critical { color: var(--red); }
+  .priority-label.important { color: var(--yellow); }
+  .priority-label.nice { color: var(--green); }
+
+  .improvement-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 10px;
+  }
+
+  .improvement-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .improvement-card .detail-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 4px 12px;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .improvement-card .detail-label {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .improvement-card .detail-value {
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+
+  /* Screenshots section */
+  .screenshot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .screenshot-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .screenshot-card .shot-label {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .screenshot-card .shot-desc {
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Flow visualization */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    padding: 20px 0;
+    position: relative;
+  }
+
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 56px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .flow-step .step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .flow-step .step-body {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .flow-step .step-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .flow-step .step-detail {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .icon-bg-blue { background: var(--accent-dim); }
+  .icon-bg-green { background: var(--green-dim); }
+  .icon-bg-yellow { background: var(--yellow-dim); }
+  .icon-bg-red { background: var(--red-dim); }
+
+  /* Prompt blocks */
+  .prompt-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .prompt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-header h4 {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .prompt-header .copy-btn {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(108,140,255,0.25);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .prompt-header .copy-btn:hover {
+    background: rgba(108,140,255,0.22);
+  }
+
+  .prompt-header .copy-btn.copied {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: rgba(6,214,160,0.25);
+  }
+
+  .prompt-body {
+    padding: 20px;
+  }
+
+  .prompt-body pre {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .prompt-intro {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 700px) {
+    .header { padding: 20px 16px 0; }
+    .content { padding: 20px 16px 40px; }
+    .header h1 { font-size: 22px; }
+    .tab-btn { padding: 10px 14px; font-size: 13px; }
+    .improvement-card .detail-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>Synthetic User Test — <span>Sia Playground</span></h1>
+      <div class="meta-pills" style="margin-top:10px;">
+        <span class="pill">March 17, 2026</span>
+        <span class="pill persona">👤 Robert — Employee</span>
+        <span class="pill">🎯 Task: Report Sick Leave</span>
+        <span class="pill">sia-mvp.vercel.app</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="flow">Task Flow</button>
+    <button class="tab-btn" data-tab="evaluation">6-Dimension Evaluation</button>
+    <button class="tab-btn" data-tab="friction">Friction Points</button>
+    <button class="tab-btn" data-tab="map">Cross-Persona Map</button>
+    <button class="tab-btn" data-tab="improvements">Improvements</button>
+    <button class="tab-btn" data-tab="prompts">Claude Code Prompts</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- OVERVIEW -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="emoji">🔍</div>
+        <div class="label">Findability</div>
+        <div class="rating good">Smooth</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">🛡️</div>
+        <div class="label">Trust</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">💬</div>
+        <div class="label">Clarity</div>
+        <div class="rating good">Smooth</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">➡️</div>
+        <div class="label">Follow-ups</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">💪</div>
+        <div class="label">Confidence</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">⚠️</div>
+        <div class="label">Concerns</div>
+        <div class="rating bad">6 Issues</div>
+      </div>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--green);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--green-dim);">✅</div>
+        <h3>What Worked Well</h3>
+      </div>
+      <blockquote>"Report Sick" is front and center on the home screen — one tap and I'm in. No hunting through menus. The confirmation told me exactly what happened: marked absent, manager notified by name (Johan Eriksson), calendar blocked. The follow-up buttons — Extend, Cancel, Who covers my meetings — were exactly what I'd think about next. Language was plain, clear, no jargon. This felt like a consumer app."</blockquote>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--red);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--red-dim);">🚨</div>
+        <h3>Critical Issues</h3>
+      </div>
+      <blockquote>"After reporting sick, I went to the Time tab to double-check — and my sick leave wasn't there. Only my vacation requests showed up. That immediately made me question whether it actually worked. Also, the interface showed me manager-level content (Team Requests queue, Inbox saying 'check in on your team') even though I'm supposed to be an employee. That's confusing and feels like the wrong account."</blockquote>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--yellow);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">💡</div>
+        <h3>Key Opportunities</h3>
+      </div>
+      <blockquote>"When I extended my sick leave, the follow-up buttons disappeared — I'd have to type manually. Surface sick leave policy info proactively (self-certification period, doctor's note rules). Let me report sick for a future date. And show an instant confirmation card instead of streaming text word by word while I'm feeling unwell."</blockquote>
+    </div>
+  </div>
+
+  <!-- TASK FLOW -->
+  <div class="tab-panel" id="tab-flow">
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-icon icon-bg-blue">1️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Home Screen — Entry Point</div>
+          <div class="step-detail">Logged in and saw the greeting "Hello, Maria!" with three quick-action cards: <strong>Report Sick</strong>, <strong>Request Time Off</strong>, and <strong>More actions</strong>. Bottom navigation shows Chat, People, Time, and Inbox tabs. Report Sick was immediately visible — no hunting required.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">2️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Clicked "Report Sick" → Instant Action</div>
+          <div class="step-detail">Tapping "Report Sick" triggered the AI assistant (Sia) immediately. No intermediate screen, no form to fill out, no date picker. The action was assumed to be "today" and executed on one tap. The response streamed in word-by-word over ~10 seconds.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">3️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Confirmation Response</div>
+          <div class="step-detail">Sia confirmed: <em>"I've registered you as <strong>sick for today</strong> (Wednesday, March 4)."</em> Listed what it did: marked absent, notified manager (Johan Eriksson), blocked calendar. Ended with "Feel better soon!" Three follow-up buttons appeared: <strong>Extend to tomorrow</strong>, <strong>Cancel sick report</strong>, <strong>Who covers my meetings?</strong></div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-blue">4️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Tapped "Extend to tomorrow"</div>
+          <div class="step-detail">Clicked the "Extend to tomorrow" quick-action button. Sia responded: <em>"Done! Your sick leave has been extended to <strong>Thursday, March 5</strong>. Your manager has been notified of the extension. Rest up and take the time you need."</em> No follow-up buttons were offered this time — only a text input for manual follow-up.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-yellow">5️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Checked Time Tab — Sick Leave Not Visible</div>
+          <div class="step-detail">Navigated to the Time tab to verify the sick leave was recorded. Saw vacation balance (12 days), sick days used (3), and existing vacation requests — but <strong>no entry for today's sick leave</strong>. The "Team Requests" section showed a pending approval for another employee, and "Upcoming" showed team absences — both manager-oriented views.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-red">6️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Checked Inbox — Manager-Oriented Content</div>
+          <div class="step-detail">The Inbox tab showed "All caught up! No pending tasks. Check in on your team or prep for upcoming 1:1s." — clearly written for a manager persona, not an employee. No notification about the sick leave being confirmed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVALUATION -->
+  <div class="tab-panel" id="tab-evaluation">
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--green-dim);">🔍</div>
+        <h3>Findability</h3>
+        <span class="badge badge-green">Smooth</span>
+      </div>
+      <blockquote>"The first thing I saw after logging in was a big 'Report Sick' button right on the home screen — that's exactly what I needed. I didn't have to dig through menus or figure out which tab to look in. It was right there, front and center, with a clear emoji icon. If I were feeling terrible and just wanted to get this done from my phone in bed, that one-tap entry point is perfect."</blockquote>
+      <blockquote>"One thing I noticed: I could also reach the Time tab, which shows my leave balance and requests. But there's no way to report sick from the Time tab — it only has 'Apply for Time Off.' If I went to the Time tab first (which would be my instinct for anything absence-related), I wouldn't find a way to report sick there."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">🛡️</div>
+        <h3>Trust &amp; Confirmation</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"After I clicked 'Report Sick,' the assistant immediately confirmed: 'I've registered you as sick for today.' And then it listed exactly what it did — marked me absent, notified my manager by name, blocked my calendar. That's the kind of transparency I want."</blockquote>
+      <blockquote>"However, when I went to the Time tab afterward, my sick leave wasn't showing in 'My Requests.' It still showed my vacation requests but nothing about today's sick report. That's unsettling — Sia told me it was registered, but the Time tab doesn't reflect it. Did it actually work?"</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--green-dim);">💬</div>
+        <h3>Response Content Clarity</h3>
+        <span class="badge badge-green">Smooth</span>
+      </div>
+      <blockquote>"The language was plain and clear — exactly how I'd want it. No HR jargon, no policy references, no legalese. Just straightforward: 'I've registered you as sick for today.' The bullet points under 'What I've done' were scannable and specific."</blockquote>
+      <blockquote>"The only tiny thing: the bold markdown formatting renders well, but a small visual confirmation card (green checkmark, dates, manager notified badge) would feel more 'official' than a text bubble."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">➡️</div>
+        <h3>Follow-up Options Relevance</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"The three follow-up buttons after the initial report were spot-on: 'Extend to tomorrow,' 'Cancel sick report,' and 'Who covers my meetings?' These are exactly the three things I'd think about after calling in sick."</blockquote>
+      <blockquote>"After clicking 'Extend to tomorrow,' the response was good but didn't offer new follow-up buttons. It said 'let me know' — but I'd have to type that manually. Why not give me another set of quick buttons like 'Extend one more day' or 'View sick leave policy'?"</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">💪</div>
+        <h3>Overall Confidence</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"I'd feel confident using this for reporting sick. The one-tap flow, the immediate confirmation, and the follow-up buttons — it all feels like a consumer app. I wouldn't need training."</blockquote>
+      <blockquote>"My hesitation is the disconnect between the Chat flow and the Time tab. If I came back the next day to verify my sick leave was registered, where would I look? The chat history? The Time tab? Right now the Time tab doesn't reflect it, which would make me nervous enough to message HR anyway."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--red-dim);">⚠️</div>
+        <h3>Surprises &amp; Concerns</h3>
+        <span class="badge badge-red">6 Issues</span>
+      </div>
+      <blockquote>"The greeting says 'Hello, Maria!' — seeing someone else's name would be alarming. No confirmation of my sick leave policy was shown — I'd love a note like 'self-certification covers the first 3 days.' The date seemed hardcoded. There's no way to report sick for a future date. The Time tab shows manager-level content. And the response streaming felt slow for a simple transactional action."</blockquote>
+    </div>
+  </div>
+
+  <!-- FRICTION POINTS -->
+  <div class="tab-panel" id="tab-friction">
+    <ul class="friction-list">
+      <li class="friction-item">
+        <div class="severity">🔴</div>
+        <div class="friction-content">
+          <div class="friction-title">Sick leave not reflected in Time tab <span class="severity-label" style="background:var(--red-dim);color:var(--red);">Critical</span></div>
+          <div class="friction-desc">After reporting sick via chat, the Time tab's "My Requests" section doesn't show it. Only vacation requests appear. This creates fundamental uncertainty about whether the action was actually registered in the system — the kind of doubt that makes an employee email HR to double-check.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🔴</div>
+        <div class="friction-content">
+          <div class="friction-title">Manager-oriented content in Employee view <span class="severity-label" style="background:var(--red-dim);color:var(--red);">Critical</span></div>
+          <div class="friction-desc">The Inbox empty state says "Check in on your team or prep for upcoming 1:1s" (manager language). The Time tab shows a "Team Requests" approval queue. Quick Actions includes a "Manager" category. None of this should be visible to an employee-role user like Robert.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">No follow-up buttons after extending sick leave <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">After the initial sick report, three contextual buttons appear (Extend, Cancel, Who covers meetings). But after clicking "Extend to tomorrow," no new buttons are offered — Robert has to type manually, which is more friction when you're unwell.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">No sick leave policy information surfaced <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">When reporting sick, no proactive information about self-certification periods, doctor's note thresholds, or a link to the sick leave policy is shown. This is the exact moment where this information would be most useful and appreciated.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">No option to report sick for a future date <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">"Report Sick" immediately registers for today with no option to specify a date or range. What about a planned medical procedure tomorrow? There's no date selection step in the flow.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">Slow streaming response for transactional action <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">The AI response streams word-by-word over ~10 seconds. For a simple transactional confirmation, watching text slowly appear feels anxious. An instant confirmation card with supplementary AI text streaming below would feel faster and more reliable.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟢</div>
+        <div class="friction-content">
+          <div class="friction-title">Text-based confirmation vs. visual card <span class="severity-label" style="background:var(--green-dim);color:var(--green);">Low</span></div>
+          <div class="friction-desc">The confirmation is plain text in a chat bubble with markdown bold. A styled card with icon, date range, status badge, and "Manager notified" indicator would feel more official and scannable.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟢</div>
+        <div class="friction-content">
+          <div class="friction-title">No confirmation email/notification option <span class="severity-label" style="background:var(--green-dim);color:var(--green);">Low</span></div>
+          <div class="friction-desc">No way to get an email or push notification confirming the sick leave for personal records. A "Send me a confirmation" button would provide reassurance.</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- CROSS-PERSONA MAP -->
+  <div class="tab-panel" id="tab-map">
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">How each persona would likely experience the same areas. Robert was tested directly; Olivia and Maria are inferred from their persona profiles.</p>
+    <table class="map-table">
+      <thead>
+        <tr>
+          <th style="width:22%;">Area</th>
+          <th style="width:26%;">Olivia (HR Admin)</th>
+          <th style="width:26%;">Maria (Manager)</th>
+          <th style="width:26%;">Robert (Employee)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="area">Report Sick — Findability</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Would find it but want admin/bulk view</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Clear on home screen</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Prominent, one-tap access</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Report Sick — Confirmation</td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would want audit log + system record</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Notified by name, good</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Chat-only, not in Time tab</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Sick Leave in Time Tab</td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">No system-of-record visibility</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Can't see team member's new sick leave</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Not reflected, creates doubt</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Follow-up Actions</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Would want policy config options</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would want "who's covering" detail</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Missing after extension step</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Role-Appropriate Content</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Needs admin views, not shown here</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Manager actions available</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Seeing manager content in employee view</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Response Speed</td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would want instant, not streaming</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Busy, wants instant answers</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Streaming feels slow for simple action</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Policy / Compliance Info</td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Would need to configure sick leave rules</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would want team implications</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">No policy info surfaced</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- IMPROVEMENTS -->
+  <div class="tab-panel" id="tab-improvements">
+
+    <div class="priority-section">
+      <div class="priority-label critical">🔴 Critical — Blocked Users</div>
+
+      <div class="improvement-card">
+        <h4>1. Sync sick leave to Time tab immediately</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span><span class="tag">Maria</span><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Reporting sick via chat doesn't create a visible entry in the Time tab's "My Requests" section</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">After sick leave is reported via Sia, immediately add it to "My Requests" with status "Active" and date range</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Time tab → "My Requests" section</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>2. Scope content to user role</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Employee view shows Team Requests queue, manager Inbox copy, and Manager quick actions</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Hide manager-only sections for employee role. Change Inbox empty state to "No notifications — you're all set!"</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Time tab, Inbox empty state, Quick Actions panel</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-label important">🟡 Important — Caused Friction</div>
+
+      <div class="improvement-card">
+        <h4>3. Add follow-up buttons after sick leave extension</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">After extending, Sia says "let me know" with no quick-action buttons</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Show buttons: "Extend one more day", "Cancel sick leave", "View sick leave policy"</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>4. Surface sick leave policy proactively</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">No policy information shown when reporting or extending sick leave</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Include a collapsible note: "Self-certification covers the first X days. After that, a doctor's note is required."</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>5. Support future-date sick leave reporting</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">"Report Sick" only registers for today — no date selection</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Ask "Is this for today, or a specific date?" or offer a date picker for planned medical absences</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>6. Show instant confirmation card before streaming text</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span><span class="tag">Maria</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Response streams word-by-word over ~10 seconds</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Show a styled confirmation card instantly (checkmark, date, badges), with AI commentary streaming below</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-label nice">🟢 Nice to Have — Would Improve Experience</div>
+
+      <div class="improvement-card">
+        <h4>7. Add "Send me a confirmation" option</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Add a follow-up button that emails a brief sick leave confirmation for personal records</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>8. Style confirmation as a visual card component</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Use a structured card with icon, date range, status badge, and "Manager notified" indicator</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>9. Show bottom navigation during chat flows</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Keep the tab bar visible so Robert can quickly switch to the Time tab to verify, without losing chat context</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLAUDE CODE PROMPTS -->
+  <div class="tab-panel" id="tab-prompts">
+    <p class="prompt-intro">Ready-to-use prompts you can paste directly into Claude Code to implement the improvements found during testing. Each prompt is self-contained and references specific UI elements. Click "Copy" to copy a prompt to your clipboard.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--red);">🔴</span> Sync sick leave to Time tab</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the Sia MVP prototype (sia-mvp.vercel.app), when a user reports sick via the chat assistant, the sick leave is NOT reflected in the Time tab's "My Requests" section. Only vacation requests appear there.
+
+Fix this so that after Sia confirms a sick leave report, an entry immediately appears in the Time tab under "My Requests" with:
+- Type: "Sick Leave" (with the 🤒 emoji icon)
+- Date range: the dates reported (e.g., "Mar 4" or "Mar 4-5" if extended)
+- Status: "Active" (with a distinct color, e.g., orange or the existing yellow style)
+
+This entry should update in real-time if the user extends the sick leave via chat. The sick days counter at the top of the Time tab should also increment accordingly.
+
+This is the highest-priority fix — without it, users lose trust in the system because there's no persistent record of their action outside the chat history.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--red);">🔴</span> Scope content to user role</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the Sia MVP prototype, the employee view currently shows manager-only content in multiple places. Fix the following for the Employee role:
+
+1. TIME TAB — Hide the "Team Requests" section (the approval queue showing e.g., "Kalle Svensson Jul 15-21"). Employees don't approve requests. Keep the "Upcoming" team absence list as read-only visibility is fine.
+
+2. INBOX — Change the empty state message from "No pending tasks. Check in on your team or prep for upcoming 1:1s." to "All caught up! No pending notifications." The current copy is clearly manager-oriented.
+
+3. QUICK ACTIONS — Hide the "Manager" category (My Team, Team Well-being, Team Absence, Prepare 1:1) from the Quick Actions panel when the logged-in user has an Employee role. Only show "Pinned" and "Personal" categories.
+
+The role should be determined by the logged-in user's account type. Maria (manager) should still see all sections.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Add follow-up buttons after extension</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the Sia MVP chat flow, after the user reports sick, three follow-up buttons appear: "Extend to tomorrow", "Cancel sick report", "Who covers my meetings?" — these are great.
+
+But after clicking "Extend to tomorrow", the response only says "If you need to extend further, just let me know" with NO follow-up buttons. The user has to type manually.
+
+Add follow-up buttons after every sick leave response, not just the initial one. After an extension, show:
+- "Extend one more day"
+- "Cancel sick leave"
+- "View sick leave policy"
+
+The pattern should be: every Sia response about sick leave ends with contextually relevant quick-action buttons. Never leave the user with just a text input after a transactional action.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Surface sick leave policy proactively</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the Sia MVP, when a user reports sick, no policy information is shown. This is a missed opportunity — the moment someone reports sick is exactly when they'd wonder about rules.
+
+After the sick leave confirmation message, add a subtle, collapsible info section:
+
+"ℹ️ Good to know: Self-certification covers the first 3 days. After that, a doctor's note is required. [View full sick leave policy →]"
+
+Style it as a muted/secondary element below the main confirmation — not as prominent as the confirmation itself, but visible enough that the user notices it. Use a slightly different background or a thin top border to visually separate it from the main message.
+
+The policy link can point to a placeholder URL for now (e.g., #sick-leave-policy).</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Support future-date sick leave</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the Sia MVP, clicking "Report Sick" immediately registers sick leave for today with no option to choose a date. This doesn't cover planned medical absences (e.g., surgery tomorrow).
+
+Update the Report Sick flow so that after clicking the button, Sia asks:
+
+"Are you reporting sick for today, or do you need to set a specific date?"
+
+Show two quick-action buttons:
+- "Today" (executes immediately as it does now)
+- "Choose dates" (shows a simple date picker or asks "Which dates?" and accepts natural language like "tomorrow" or "March 10-12")
+
+Keep the current one-tap flow as the fast path — "Today" should feel just as quick as before. The date selection is an optional branch for users who need it.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Show instant confirmation card</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the Sia MVP, the sick leave confirmation streams in word-by-word over ~10 seconds. For a transactional action, this feels slow and creates anxiety ("did it work?").
+
+Add an instant confirmation card component that appears immediately (no streaming) when a sick leave action completes. The card should show:
+- A green checkmark icon
+- "Sick leave registered" (bold)
+- Date range (e.g., "Wednesday, March 4")
+- "Manager notified" badge with the manager's name
+- "Calendar blocked" badge
+
+Below the card, the conversational AI text ("Feel better soon!" etc.) can still stream in as supplementary content. The key insight: the structured confirmation should be instant, while the friendly chat text can stream.
+
+Use a card style similar to the leave request cards in the Time tab for visual consistency.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--green);">🟢</span> Add email confirmation option</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the Sia MVP sick leave flow, add a follow-up button "Email me a confirmation" that would send the user a brief confirmation email with:
+- Subject: "Sick leave confirmed — [date range]"
+- Body: date range, manager notified, calendar blocked status
+
+For the prototype, this button can show a toast/snackbar saying "Confirmation sent to your email" without actually sending. The important thing is that the option exists in the UI as a follow-up action.</pre>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function copyPrompt(btn) {
+    const pre = btn.closest('.prompt-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

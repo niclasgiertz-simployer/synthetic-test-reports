@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthetic User Test — Simployer Vacation Engine</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242836;
+    --border: #2e3344;
+    --text: #e4e6ed;
+    --text-muted: #8b8fa3;
+    --accent: #6c8cff;
+    --accent-dim: rgba(108,140,255,0.12);
+    --red: #ff6b6b;
+    --red-dim: rgba(255,107,107,0.12);
+    --yellow: #ffd166;
+    --yellow-dim: rgba(255,209,102,0.12);
+    --green: #06d6a0;
+    --green-dim: rgba(6,214,160,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    padding: 32px 40px 0;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .meta-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .pill {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .pill.persona {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-top: 28px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tab-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    padding: 12px 22px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 40px 60px;
+  }
+
+  .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Score summary cards */
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .score-card .emoji { font-size: 24px; margin-bottom: 6px; }
+  .score-card .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .score-card .rating { font-size: 14px; font-weight: 600; margin-top: 4px; }
+  .score-card .rating.good { color: var(--green); }
+  .score-card .rating.mixed { color: var(--yellow); }
+  .score-card .rating.bad { color: var(--red); }
+
+  /* Dimension cards */
+  .dimension {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+
+  .dimension-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .dimension-header .icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .dimension-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .dimension-header .badge {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+
+  .dimension blockquote {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    border-left: 3px solid var(--border);
+    padding-left: 16px;
+    font-style: italic;
+  }
+
+  .dimension blockquote + blockquote {
+    margin-top: 12px;
+  }
+
+  /* Friction list */
+  .friction-list { list-style: none; }
+
+  .friction-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .friction-item .severity {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .friction-item .friction-content { flex: 1; }
+
+  .friction-item .friction-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .friction-item .friction-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .severity-label {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Friction map table */
+  .map-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .map-table th {
+    background: var(--surface2);
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .map-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .map-table tr:last-child td { border-bottom: none; }
+
+  .map-table .area { font-weight: 600; color: var(--text); }
+
+  .map-table .cell-indicator {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .map-table .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-red { background: var(--red); }
+
+  .map-table .cell-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Improvements */
+  .priority-section {
+    margin-bottom: 28px;
+  }
+
+  .priority-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+
+  .priority-label.critical { color: var(--red); }
+  .priority-label.important { color: var(--yellow); }
+  .priority-label.nice { color: var(--green); }
+
+  .improvement-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 10px;
+  }
+
+  .improvement-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .improvement-card .detail-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 4px 12px;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .improvement-card .detail-label {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .improvement-card .detail-value {
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+
+  /* Flow steps */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    padding: 20px 0;
+    position: relative;
+  }
+
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 56px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .flow-step .step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .flow-step .step-body {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .flow-step .step-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .flow-step .step-detail {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .icon-bg-blue { background: var(--accent-dim); }
+  .icon-bg-green { background: var(--green-dim); }
+  .icon-bg-yellow { background: var(--yellow-dim); }
+  .icon-bg-red { background: var(--red-dim); }
+
+  /* Prompt blocks */
+  .prompt-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .prompt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-header h4 {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .prompt-header .copy-btn {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(108,140,255,0.25);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .prompt-header .copy-btn:hover {
+    background: rgba(108,140,255,0.22);
+  }
+
+  .prompt-header .copy-btn.copied {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: rgba(6,214,160,0.25);
+  }
+
+  .prompt-body {
+    padding: 20px;
+  }
+
+  .prompt-body pre {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .prompt-intro {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 700px) {
+    .header { padding: 20px 16px 0; }
+    .content { padding: 20px 16px 40px; }
+    .header h1 { font-size: 22px; }
+    .tab-btn { padding: 10px 14px; font-size: 13px; }
+    .improvement-card .detail-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>Synthetic User Test — <span>Simployer Vacation Engine</span></h1>
+      <div class="meta-pills">
+        <span class="pill">2026-03-19</span>
+        <span class="pill persona">Olivia (HR Admin)</span>
+        <span class="pill">4-scenario usability test</span>
+        <span class="pill">slim-international-vacation-engine.vercel.app</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="flow">Task Flow</button>
+    <button class="tab-btn" data-tab="evaluation">6-Dimension Evaluation</button>
+    <button class="tab-btn" data-tab="friction">Friction Points</button>
+    <button class="tab-btn" data-tab="map">Cross-Persona Map</button>
+    <button class="tab-btn" data-tab="improvements">Improvements</button>
+    <button class="tab-btn" data-tab="prompts">Claude Code Prompts</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ============================================================
+       TAB 1: OVERVIEW
+       ============================================================ -->
+  <div class="tab-panel active" id="tab-overview">
+
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="emoji">🔍</div>
+        <div class="label">Findability</div>
+        <div class="rating good">Smooth</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">🤝</div>
+        <div class="label">Trust</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">💬</div>
+        <div class="label">Clarity</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">🔗</div>
+        <div class="label">Follow-ups</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">✓</div>
+        <div class="label">Confidence</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">⚠️</div>
+        <div class="label">Concerns</div>
+        <div class="rating bad">5 Issues</div>
+      </div>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--green);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--green-dim);">✅</div>
+        <h3>What Worked Well</h3>
+      </div>
+      <blockquote>"The policy creation wizard is genuinely impressive. Selecting Netherlands gives me pre-configured statutory defaults — 4x weekly working days, Jan-Dec leave year, July 1 expiry for statutory days — all correct under Dutch law. Sweden is equally well done: 25 days, April-March leave year, summer rights for 4 consecutive weeks in June-August, förskottssemester toggle. The 'Required by law' badges give me instant confidence that compliance-critical settings are locked down. The Sia AI proactively found Dutch employees when I created the Netherlands policy and offered to add them — that's the kind of intelligent workflow automation I want. The 5-step wizard (Name → Statutory → Rules → Scope → Review) is logical and the review page gives me a full summary before committing. The policy scope flexibility (Country, Office, Dept, Title, Team, Employee) is excellent for a multi-country setup."</blockquote>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--red);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--red-dim);">🚨</div>
+        <h3>Critical Issues</h3>
+      </div>
+      <blockquote>"The biggest gap is that there's no way to transfer an employee between countries. Willem de Vries is in the Netherlands and I need to move him to Sweden — but the Employment tab is completely read-only with no edit button, no transfer action, nothing. The only action available is 'Offboard Employee.' In real life, international transfers are a core HR workflow, and without this, I'd have to offboard and re-hire, losing all history. Albania is a country I can select when adding an employee, but there's no pre-configured policy template for it and no obvious 'Custom policy' wizard was started from the country selection page — only a brief mention of 'Custom' at the bottom I couldn't fully explore. This means employees in unsupported countries get stuck with 'No policy' and no clear path forward."</blockquote>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--yellow);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">💡</div>
+        <h3>Key Opportunities</h3>
+      </div>
+      <blockquote>"Adding an employee transfer flow would be transformative — the system already knows about policies per country, so it could suggest 'Willem is moving to Sweden, would you like to switch from Netherlands Standard to Sweden Standard policy?' The Custom policy builder needs to be more prominent for unsupported countries. The 'Need help?' button and 'Connect with an expert' link are nice touches but I'd want to know what happens when I click them. Adding change history/audit trail to policies would build trust. The review page should fix the 'days days' bug and '1 countries' grammar issue."</blockquote>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       TAB 2: TASK FLOW
+       ============================================================ -->
+  <div class="tab-panel" id="tab-flow">
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-icon icon-bg-blue">1️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Landing on Dashboard</div>
+          <div class="step-detail">Home page shows HR metrics: Tenure 4.9yrs, FTE 29.0, Headcount 29, Employee turnover 0%, Average age 35, Gender split 62/38, Sick leave by country. Clear left nav: Home, Employees, Policies. Good first impression — clean, data-rich.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-blue">2️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Navigating to Employees</div>
+          <div class="step-detail">Employee list shows 29 active employees with Colleague, Title, Country (with flags), Office, Department, Vacation Balance, Status columns. Search and Filters available. All employees show 'No policy' — this is the starting state. Willem de Vries is visible at ID 00003.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">3️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Opening Willem's Profile — Scenario 1</div>
+          <div class="step-detail">Clicked Willem → profile shows tabs (Personal Information, Employment, Compensation, Vacation). Vacation tab shows 'No Vacation Policy Assigned' with clear '+ Assign Vacation Policy' button. Country shown as Netherlands with flag.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-yellow">4️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Attempting to Assign Policy — None Exist</div>
+          <div class="step-detail">Clicked '+ Assign Vacation Policy' → modal says 'No policies configured. Please create a policy.' with '+ Create New Policy' button. This redirected me away from Willem's profile — I lost context. Good that it guided me to create, but I'd want to come back to Willem automatically after.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">5️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Country Selection — Policy Creation</div>
+          <div class="step-detail">Country selection page shows 8 pre-configured countries (Norway, Sweden, Denmark, Finland, Netherlands, Poland, Germany, UK) plus Custom option. Selected Netherlands. The country cards with flags are very clear.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">6️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Netherlands Policy Wizard — Step 1 (Name)</div>
+          <div class="step-detail">Pre-filled 'Netherlands Standard Vacation Policy.' Sia AI appeared and said 'We have found these employees from Netherlands: Willem de Vries, Sophie van den Berg, Willem de Groot. Should we add these to the policy scope?' with 'Yes, add all' button. Clicked Yes — brilliant feature.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">7️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Netherlands Policy Wizard — Step 2 (Statutory)</div>
+          <div class="step-detail">Pre-configured Dutch defaults: Leave Year Jan 1 - Dec 31, Statutory Entitlement '4× weekly working days', Counting Rule 'Scheduled work days', Notice Requirement 'As per contract'. 'Connect with an expert' link available. All correct per Dutch law.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">8️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Netherlands Policy Wizard — Step 3 (Rules)</div>
+          <div class="step-detail">Dutch-specific rules: 'Statutory days expire July 1 next year' (Required by law, toggled on), 'Non-statutory expire 5 years after year-end', 'Block expiry if employer failed to inform' (Required by law), Accrual method 'Upfront annual grant'. Additional Settings: Contractual Days 0, Consumption Priority 'Carryover first (expires soonest)'.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">9️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Netherlands Policy Wizard — Step 4 (Scope)</div>
+          <div class="step-detail">Policy scope with tabs: Country, Office, Dept, Title, Team, Employee. Netherlands pre-checked. 1 selected.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">🔟</div>
+        <div class="step-body">
+          <div class="step-title">Netherlands Policy Wizard — Step 5 (Review)</div>
+          <div class="step-detail">Full review summary. Bug spotted: 'Entitlement: 4× weekly working days days' (duplicate 'days'). 'Selections: 1 countries, 3 employees' (grammar: should be '1 country'). Created policy successfully.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">1️⃣1️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Verifying Policy Applied</div>
+          <div class="step-detail">Returned to Employees list. Willem now shows '10.0 days' vacation balance instead of 'No policy'. Opened Willem's Vacation tab: shows 10.0 total (5.0 Statutory + 5.0 Non-statutory), upcoming vacation (Summer holiday 06/07-24/07, 15 days, Pending), and vacation history.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-red">1️⃣2️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Scenario 2 — Trying to Transfer Willem to Sweden</div>
+          <div class="step-detail">Went to Willem's Employment tab. All fields read-only: Job Title, Department, Office, Team, Reports To, Work Location. No edit button, no transfer action. Only 'Offboard Employee' button. Complete dead end. Employment Timeline shows history but no way to modify. Cannot change country.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-yellow">1️⃣3️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Scenario 3 — Adding Albanian Employee</div>
+          <div class="step-detail">Clicked '+ Add Employee'. Form has Full Name, Email, Employee Number, Annual Salary, Start Date, Country (dropdown), Office, Department, Position, Schedule, plus 'Magic Fill' button. Albania available in the country dropdown (with flag emoji). Filled in Arta Hoxha's details.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-yellow">1️⃣4️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Scenario 3 — Policy Assignment for Albania</div>
+          <div class="step-detail">Step 2 of Add Employee: 'Vacation Policy Setup'. Policy dropdown shows pre-configured options for 9 countries but no Albania. No option to create a custom policy from this step — only 'Skip Vacation Policy' toggle. Had to skip. Arta was added with 'No policy'.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">1️⃣5️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Scenario 4 — Creating Swedish Policy</div>
+          <div class="step-detail">Selected Sweden from country selection. Sia AI found 4 Swedish employees (Erik Bergström, Astrid Lindgren, Karl-Johan Eriksson, Elin Björk). Swedish defaults correctly different from NL: Leave Year Apr 1 - Mar 31, Entitlement 25 days, Counting Rule Monday-Friday, Notice 2 months, Main Holiday Period June-August, Summer Rights '4 consecutive weeks during June-August'.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">1️⃣6️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Sweden Rules — Unique Features</div>
+          <div class="step-detail">Swedish rules included: 'Allow saving days above 20' (Required by law), 'Saved days expiry 5 years', 'Allow advance vacation (förskottssemester)', 'Calculate paid vs unpaid from qualifying year' (Required by law), 'Block saving when using saved days' (Required by law). More complex than NL, correctly reflecting Swedish labor law.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">1️⃣7️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Sweden Policy Created</div>
+          <div class="step-detail">Policy Scope: Sweden, 4 employees. Created successfully. Policies page now shows both Netherlands (3 employees) and Sweden (4 employees).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TAB 3: 6-DIMENSION EVALUATION
+       ============================================================ -->
+  <div class="tab-panel" id="tab-evaluation">
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--green-dim);">🔍</div>
+        <h3>Findability</h3>
+        <span class="badge badge-green">Smooth</span>
+      </div>
+      <blockquote>"The navigation is clean and obvious — three items in the sidebar: Home, Employees, Policies. I found what I needed immediately. The employee list has country flags which makes it easy to visually scan for Dutch or Swedish employees. The policy creation flow starts logically from either the Policies page or from an employee's Vacation tab. The 5-step wizard stepper (Name → Statutory → Rules → Scope → Review) gives me clear orientation at all times."</blockquote>
+      <blockquote>"The only findability issue was the Custom policy option — it's mentioned at the bottom of the country selection page but I didn't explore it because the pre-configured country cards were so prominent. For Albania, I'd need to scroll past all 8 country cards to find Custom, which isn't ideal when I already know I need a non-standard country."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">🤝</div>
+        <h3>Trust & Confirmation</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"The 'Required by law' badges on statutory rules are excellent — they give me immediate confidence that compliance-critical settings are locked and I can't accidentally turn them off. The review page before creating a policy is thorough and lets me verify everything. The Sia AI correctly identifying Dutch employees and offering to add them builds trust in the system's intelligence."</blockquote>
+      <blockquote>"What's missing is an audit trail. After creating a policy, I'd want to see: who created it, when, what was changed, and whether anyone has modified the defaults. The Employment tab has no change log either. For a compliance-conscious HR Admin managing multi-country leave, I need proof that configurations haven't been tampered with. Also, the employee count on the Employees page went from 29 to 30 after adding Arta, but there was no success toast or confirmation message — I had to verify manually."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">💬</div>
+        <h3>Response Content Clarity</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"The terminology is mostly professional and correct. I appreciate that Swedish-specific concepts like 'förskottssemester' (advance vacation) are included with their Swedish name — my Swedish colleagues would recognize this immediately. The 'Counting Rule' and 'Consumption Priority' labels are precise and match how I think about leave configuration. The country selection cards with flags and 'Configure →' are very clear."</blockquote>
+      <blockquote>"There are two text bugs that undermine the polished feel: the review page shows 'Entitlement: 4× weekly working days days' with a duplicate 'days', and 'Selections: 1 countries, 3 employees' should be '1 country.' These are small but noticeable during a compliance review. Also, the 'Statutory Entitlement' field on the Netherlands wizard uses '4× weekly working days' as a text string rather than showing the calculated number (20 days for a 5-day week) — I had to do the math myself to verify."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">🔗</div>
+        <h3>Follow-up Options</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"The Sia AI proactively suggesting Dutch employees when creating a Netherlands policy is the best follow-up I've seen in an HRIS prototype. It anticipated my next step before I got there. The 'Connect with an expert' link on the Statutory Configuration step is a smart safety net — if I'm unsure about the defaults, I can get help. The 'Need help?' button in the top right is consistently available."</blockquote>
+      <blockquote>"Where follow-ups break down is after dead ends. When I tried to transfer Willem to Sweden and found no edit capability, there was no guidance — no 'Looking to transfer an employee?' link, no suggestion to contact support, nothing. Similarly, when adding Arta from Albania and the policy dropdown had no matching option, there was no 'Create new policy' shortcut — I had to skip and navigate to Policies separately. The system should anticipate these gaps and offer paths forward."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">✓</div>
+        <h3>Overall Confidence</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"For the supported country flows — creating a Netherlands or Sweden policy — I'm genuinely confident. The statutory defaults look correct, the 'Required by law' badges confirm compliance, and the review page lets me verify everything. The 5-step wizard is repeatable and I could train a colleague to use it. This is better than maintaining country-specific spreadsheets."</blockquote>
+      <blockquote>"But my confidence drops sharply for edge cases: employees in unsupported countries (Albania), international transfers, and editing existing employee data. These are real-world HR scenarios that happen constantly in a 20-2000 employee Nordic company. If I can't handle transfers or set up policies for non-core countries, I'd still need manual processes running alongside the system — which defeats the purpose of an HRIS."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--red-dim);">⚠️</div>
+        <h3>Surprises & Concerns</h3>
+        <span class="badge badge-red">5 Issues</span>
+      </div>
+      <blockquote>"The biggest surprise is the complete absence of an employee transfer workflow. This is a vacation engine for international companies — country transfers should be a core feature, not a missing one. The read-only Employment tab with only an 'Offboard Employee' button feels like a prototype gap, but it would be a deal-breaker in production."</blockquote>
+      <blockquote>"Albania is selectable as a country when adding an employee, but there's no corresponding policy template. This creates a trap: I can add an Albanian employee but then can't give them a leave policy through the standard flow. Either limit the country dropdown to supported countries, or make the Custom policy flow more accessible."</blockquote>
+      <blockquote>"The employee profile doesn't show which vacation policy they're assigned to by name on the Vacation tab — I see balances and history but not 'Assigned Policy: Netherlands Standard Vacation Policy.' If I'm auditing which employees are on which policy, I'd need to go to the Policies page and check scope for each one."</blockquote>
+      <blockquote>"No bulk operations for policy assignment. With 29 employees all showing 'No policy', I'd need to create policies one by one and hope the scope catches everyone. There should be a way to bulk-assign or at least see which employees are unassigned and fix it in one flow."</blockquote>
+      <blockquote>"The date format is inconsistent — some places show DD/MM/YYYY (employee profile), others show YYYY-MM-DD (start date input). Also the start date input in the Add Employee form showed '202604-01-dd' when I typed the date, suggesting a formatting issue with the date picker."</blockquote>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TAB 4: FRICTION POINTS
+       ============================================================ -->
+  <div class="tab-panel" id="tab-friction">
+    <ul class="friction-list">
+      <li class="friction-item">
+        <div class="severity">🔴</div>
+        <div class="friction-content">
+          <div class="friction-title">No employee transfer/country change feature <span class="severity-label" style="background:var(--red-dim);color:var(--red);">Critical</span></div>
+          <div class="friction-desc">Employment tab is read-only. No way to move Willem from Netherlands to Sweden. Only action is 'Offboard Employee.' International transfers are a core HR workflow for multi-country companies.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🔴</div>
+        <div class="friction-content">
+          <div class="friction-title">Albania employee gets stuck without policy <span class="severity-label" style="background:var(--red-dim);color:var(--red);">Critical</span></div>
+          <div class="friction-desc">Can add employee from Albania but no Albania policy template exists. No 'Create Custom Policy' shortcut from the policy assignment step. Employee left with 'No policy' and no guided path to resolution.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">No 'Create policy' shortcut from employee policy assignment <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">When assigning policy from employee profile and no policies exist, user is redirected to Policies page, losing employee context. Should offer inline policy creation or link back after.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">Text bugs in review page <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">'Entitlement: 4× weekly working days days' (duplicate 'days'), 'Selections: 1 countries, 3 employees' (should be '1 country'). Undermines professional feel during compliance review.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">No audit trail or change log for policies <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">No visibility into who created/modified a policy, when, or what changed. Critical for compliance and multi-admin environments.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">No success confirmation after creating employee <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">After adding Arta Hoxha, no toast/modal confirms success. Employee count changes from 29 to 30 but requires manual verification.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">Policy name not shown on employee Vacation tab <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">Balance and history shown but not which policy the employee belongs to. Makes auditing difficult.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟢</div>
+        <div class="friction-content">
+          <div class="friction-title">Date format inconsistency <span class="severity-label" style="background:var(--green-dim);color:var(--green);">Low</span></div>
+          <div class="friction-desc">Mix of DD/MM/YYYY and YYYY-MM-DD across the app. Date input showed malformatted value '202604-01-dd' when typed.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟢</div>
+        <div class="friction-content">
+          <div class="friction-title">No bulk policy assignment <span class="severity-label" style="background:var(--green-dim);color:var(--green);">Low</span></div>
+          <div class="friction-desc">With 29 employees all on 'No policy', there's no way to bulk-select and assign. Would need to create policies and rely on scope matching.</div>
+        </div>
+      </li>
+      <li class="friction-item">
+        <div class="severity">🟢</div>
+        <div class="friction-content">
+          <div class="friction-title">Entitlement shown as formula not number <span class="severity-label" style="background:var(--green-dim);color:var(--green);">Low</span></div>
+          <div class="friction-desc">'4× weekly working days' requires mental math. Should show calculated result (e.g., '20 days for full-time') alongside the formula.</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ============================================================
+       TAB 5: CROSS-PERSONA MAP
+       ============================================================ -->
+  <div class="tab-panel" id="tab-map">
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">Olivia (HR Admin) was the primary tester, running 4 scenarios through the time-off feature prototype. Maria (Manager) and Robert (Employee) assessments are inferred from their persona profiles and what the interface reveals about their potential experience.</p>
+    <table class="map-table">
+      <thead>
+        <tr>
+          <th style="width:22%;">Area</th>
+          <th style="width:26%;">Olivia (HR Admin)</th>
+          <th style="width:26%;">Maria (Manager)</th>
+          <th style="width:26%;">Robert (Employee)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="area">Policy Creation Wizard</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Excellent 5-step flow with compliance defaults</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would need to understand if she can view policies</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Not relevant — wouldn't create policies</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Country-Specific Defaults</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Correct NL/SE statutory rules build trust</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would want to verify team members' entitlements</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Gets correct entitlement automatically</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Employee Transfer</td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Complete dead end — no transfer feature</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would need to request HR to handle manually</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Can't self-serve a country change</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">AI Suggestions (Sia)</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Proactive employee matching is excellent</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Unknown if Sia helps with team leave overview</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Unknown if Sia helps with leave requests</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Vacation Balance View</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Detailed breakdown with buckets</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would need team aggregated view</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Clear balance with upcoming/history</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Unsupported Countries</td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">No custom policy wizard from assignment flow</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Would see team member with 'No policy'</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Stuck with no leave balance</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Audit Trail</td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Missing — critical for compliance</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Less critical for role</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Not relevant to employee role</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================
+       TAB 6: IMPROVEMENTS
+       ============================================================ -->
+  <div class="tab-panel" id="tab-improvements">
+    <div class="priority-section">
+      <div class="priority-label critical">🔴 Critical — Blocked Users</div>
+
+      <div class="improvement-card">
+        <h4>1. Add employee transfer workflow</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Employment tab is read-only with only 'Offboard Employee' button. No way to move Willem from Netherlands to Sweden without losing history.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Add 'Transfer Employee' button that updates country, reassigns to matching leave policy, prorates balance, and logs the change.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Employment tab — add action menu with Transfer, Edit, and existing Offboard options.</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>2. Add 'Create Custom Policy' shortcut from assignment flow</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">When no matching policy exists for an employee's country (e.g., Albania), the only option is 'Skip' and navigate to Policies separately.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Add 'Create New Policy' option in the policy assignment dropdown, linking directly to the Custom policy wizard pre-filled with the employee's country.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Step 2 of Add Employee modal and the Assign Vacation Policy modal on employee Vacation tab.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-label important">🟡 Important — Enhanced Experience</div>
+
+      <div class="improvement-card">
+        <h4>3. Fix text bugs on review page</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">'Entitlement: 4× weekly working days days' and '1 countries, 3 employees.'</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Fix duplicate 'days' word and pluralize correctly ('1 country').</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Step 5 Review page, Entitlement and Selections display.</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>4. Add audit trail for policy changes</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">No visibility into who created/modified policies or when.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Add a 'History' section to each policy showing timestamps, user, and what changed.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Policy detail/edit page — add History tab or section.</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>5. Show assigned policy name on employee Vacation tab</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Vacation tab shows balance and history but not the policy name.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Add 'Assigned Policy: Netherlands Standard Vacation Policy' with link to policy details.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Employee Vacation tab, above or alongside the balance card.</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>6. Add success confirmation after employee creation</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Employee added silently — count changes but no toast.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Show success toast 'Arta Hoxha has been added' with link to their profile.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">After Step 2 of Add Employee flow.</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>7. Return to employee after policy creation from their profile</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Creating policy from employee's 'Assign Vacation Policy' redirects to Policies page — loses employee context.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">After policy creation triggered from employee, redirect back to that employee's Vacation tab with the new policy auto-assigned.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Navigation flow from Employee → Assign Policy → Create Policy → back to Employee.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-label nice">🟢 Nice to Have — Polish & Delight</div>
+
+      <div class="improvement-card">
+        <h4>8. Show calculated entitlement alongside formula</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span><span class="tag">Maria</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">NL shows '4× weekly working days' — requires mental math.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Show '4× weekly working days = 20 days (for full-time 5-day week)'.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Statutory Entitlement field on Step 2 and Review page.</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>9. Bulk policy assignment for unassigned employees</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Can only assign policies via scope or individually.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Add 'X employees have no policy' alert on dashboard or Employees page with bulk-assign action.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Employees list page — banner or filter for unassigned.</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>10. Standardize date formats</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span><span class="tag">Maria</span><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Mix of DD/MM/YYYY and YYYY-MM-DD. Date input shows malformatted value.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Use consistent format (DD/MM/YYYY for display, proper date picker for input).</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">All date displays and inputs across the app.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TAB 7: CLAUDE CODE PROMPTS
+       ============================================================ -->
+  <div class="tab-panel" id="tab-prompts">
+    <p class="prompt-intro">Ready-to-use prompts you can paste directly into Claude Code to implement the improvements found during testing. Each prompt is self-contained and references specific UI elements. Click "Copy" to copy a prompt to your clipboard.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--red);">🔴</span> Add employee transfer workflow</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the employee profile page (Employment tab), there is currently only a read-only display of employment details and an "Offboard Employee" button at the bottom. Add a "Transfer Employee" button next to or above the Offboard button.
+
+When clicked, it should open a modal/wizard with:
+1. New Country (dropdown, same country list as Add Employee)
+2. New Office (dropdown, filtered by country)
+3. Transfer Date (date picker)
+4. A section showing current vacation policy and suggesting the matching policy for the new country (e.g., "Current: Netherlands Standard → Suggested: Sweden Standard")
+5. Option to prorate remaining balance or carry over
+6. A review step showing all changes
+7. On confirmation: update employee's country, office, work location; unassign old policy; assign new country policy; add entry to Employment Timeline
+
+The Employment tab fields (Job Title, Department, Office, Team, Work Location, etc.) should also become editable via an "Edit" icon/button in the section header.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--red);">🔴</span> Add 'Create Custom Policy' from assignment flow</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>In the Add Employee modal Step 2 (Vacation Policy Setup), when the "Select Policy" dropdown has no matching policy for the employee's country, add a "Create New Policy" button or link below the dropdown.
+
+Similarly, in the "Assign Vacation Policy" modal on an employee's Vacation tab, when no policies match, instead of only showing "No policies configured" with "+ Create New Policy" that navigates away, add inline context: the new policy creation should know which employee triggered it. After policy creation, automatically redirect back to the employee profile with the new policy pre-selected for assignment.
+
+Also, in the country selection page for Create Vacation Policy, make the "Custom" section more prominent — either as a card alongside the country cards or as a clear CTA for countries not in the pre-configured list.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Fix text bugs on review page</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>On the policy creation Step 5 (Review), fix two text display bugs:
+1. The Entitlement field shows "4× weekly working days days" — the word "days" is duplicated. Find where the entitlement display string is constructed and remove the duplicate suffix.
+2. The Selections field shows "1 countries, 3 employees" — should be "1 country, 3 employees". Add proper singular/plural handling: if count === 1, use singular form ("country", "employee"), otherwise use plural.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Add audit trail for policies</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>Add a "History" section to each vacation policy's detail/edit page. This should log:
+- Policy created (timestamp, user)
+- Any field changes (timestamp, user, field name, old value → new value)
+- Employee added/removed from scope (timestamp, user, employee name)
+- Policy deleted (timestamp, user)
+
+Display as a timeline similar to the Employment Timeline component already used on the employee profile. Store events in the policy data model with: timestamp, userId, action type, field, oldValue, newValue.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Show policy name on employee Vacation tab</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>On the employee Vacation tab, above the "Vacation Balance" card, add a policy info banner showing:
+- "Assigned Policy: [Policy Name]" (e.g., "Netherlands Standard Vacation Policy")
+- Country flag + country name
+- A link/button to view the full policy details
+- An "Unassign" or "Change Policy" action
+
+If no policy is assigned, show the current "No Vacation Policy Assigned" empty state (already exists).</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Add success toast after employee creation</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>After successfully completing the Add Employee flow (clicking "Add Employee" on Step 2), show a toast notification:
+- Message: "[Employee Name] has been added successfully"
+- Include a "View Profile" link in the toast
+- Auto-dismiss after 5 seconds
+- Green success styling consistent with the app's design</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--green);">🟢</span> Show calculated entitlement alongside formula</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>On the policy creation Step 2 (Statutory Configuration) and Step 5 (Review), when the Statutory Entitlement uses a formula like "4× weekly working days", add a helper text showing the calculated result based on the default work schedule.
+
+For example: "4× weekly working days" → show "(= 20 days for 5-day week)" below or beside the field.
+
+This helps HR Admins quickly verify the number without mental math, especially when comparing across countries.</pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function copyPrompt(btn) {
+    const pre = btn.closest('.prompt-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

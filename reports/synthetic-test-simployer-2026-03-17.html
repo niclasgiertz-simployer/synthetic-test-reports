@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthetic User Test — Simployer.com</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242836;
+    --border: #2e3344;
+    --text: #e4e6ed;
+    --text-muted: #8b8fa3;
+    --accent: #6c8cff;
+    --accent-dim: rgba(108,140,255,0.12);
+    --red: #ff6b6b;
+    --red-dim: rgba(255,107,107,0.12);
+    --yellow: #ffd166;
+    --yellow-dim: rgba(255,209,102,0.12);
+    --green: #06d6a0;
+    --green-dim: rgba(6,214,160,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    padding: 32px 40px 0;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .meta-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .pill {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .pill.persona {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-top: 28px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tab-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    padding: 12px 22px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 40px 60px;
+  }
+
+  .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Score summary cards */
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .score-card .emoji { font-size: 24px; margin-bottom: 6px; }
+  .score-card .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .score-card .rating { font-size: 14px; font-weight: 600; margin-top: 4px; }
+  .score-card .rating.good { color: var(--green); }
+  .score-card .rating.mixed { color: var(--yellow); }
+  .score-card .rating.bad { color: var(--red); }
+
+  /* Dimension cards */
+  .dimension {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+
+  .dimension-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .dimension-header .icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .dimension-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .dimension-header .badge {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+
+  .dimension blockquote {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    border-left: 3px solid var(--border);
+    padding-left: 16px;
+    font-style: italic;
+  }
+
+  .dimension blockquote + blockquote {
+    margin-top: 12px;
+  }
+
+  /* Friction list */
+  .friction-list { list-style: none; }
+
+  .friction-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .friction-item .severity {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .friction-item .friction-content { flex: 1; }
+
+  .friction-item .friction-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .friction-item .friction-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .severity-label {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Friction map table */
+  .map-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .map-table th {
+    background: var(--surface2);
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .map-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .map-table tr:last-child td { border-bottom: none; }
+
+  .map-table .area { font-weight: 600; color: var(--text); }
+
+  .map-table .cell-indicator {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .map-table .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-red { background: var(--red); }
+
+  .map-table .cell-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Improvements */
+  .priority-section {
+    margin-bottom: 28px;
+  }
+
+  .priority-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+
+  .priority-label.critical { color: var(--red); }
+  .priority-label.important { color: var(--yellow); }
+  .priority-label.nice { color: var(--green); }
+
+  .improvement-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 10px;
+  }
+
+  .improvement-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .improvement-card .detail-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 4px 12px;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .improvement-card .detail-label {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .improvement-card .detail-value {
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+
+  /* Flow steps */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    padding: 20px 0;
+    position: relative;
+  }
+
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 56px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .flow-step .step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .flow-step .step-body {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .flow-step .step-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .flow-step .step-detail {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .icon-bg-blue { background: var(--accent-dim); }
+  .icon-bg-green { background: var(--green-dim); }
+  .icon-bg-yellow { background: var(--yellow-dim); }
+  .icon-bg-red { background: var(--red-dim); }
+
+  /* Prompt blocks */
+  .prompt-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .prompt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-header h4 {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .prompt-header .copy-btn {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(108,140,255,0.25);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .prompt-header .copy-btn:hover {
+    background: rgba(108,140,255,0.22);
+  }
+
+  .prompt-header .copy-btn.copied {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: rgba(6,214,160,0.25);
+  }
+
+  .prompt-body {
+    padding: 20px;
+  }
+
+  .prompt-body pre {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .prompt-intro {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  /* Verdict section */
+  .verdict-box {
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    padding: 28px;
+    margin-top: 24px;
+  }
+
+  .verdict-box h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--accent);
+  }
+
+  .verdict-box p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .verdict-box .verdict-label {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  .verdict-label.maybe { background: var(--yellow-dim); color: var(--yellow); }
+  .verdict-label.yes { background: var(--green-dim); color: var(--green); }
+  .verdict-label.no { background: var(--red-dim); color: var(--red); }
+
+  @media (max-width: 700px) {
+    .header { padding: 20px 16px 0; }
+    .content { padding: 20px 16px 40px; }
+    .header h1 { font-size: 22px; }
+    .tab-btn { padding: 10px 14px; font-size: 13px; }
+    .improvement-card .detail-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>Synthetic User Test — <span>Simployer.com</span></h1>
+      <div class="meta-pills">
+        <span class="pill">2026-03-17</span>
+        <span class="pill persona">Olivia — HR Admin</span>
+        <span class="pill">HRIS Evaluation: AI Capabilities</span>
+        <span class="pill">simployer.com/sv/</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="flow">Task Flow</button>
+    <button class="tab-btn" data-tab="evaluation">6-Dimension Evaluation</button>
+    <button class="tab-btn" data-tab="friction">Friction Points</button>
+    <button class="tab-btn" data-tab="map">Cross-Persona Map</button>
+    <button class="tab-btn" data-tab="improvements">Improvements</button>
+    <button class="tab-btn" data-tab="prompts">Claude Code Prompts</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- TAB 1: OVERVIEW -->
+  <div class="tab-panel active" id="tab-overview">
+
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="emoji">🔍</div>
+        <div class="label">Findability</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">🛡️</div>
+        <div class="label">Trust</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">💬</div>
+        <div class="label">Clarity</div>
+        <div class="rating good">Smooth</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">➡️</div>
+        <div class="label">Follow-ups</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">💪</div>
+        <div class="label">Confidence</div>
+        <div class="rating mixed">Mixed</div>
+      </div>
+      <div class="score-card">
+        <div class="emoji">⚠️</div>
+        <div class="label">Concerns</div>
+        <div class="rating bad">4 Issues</div>
+      </div>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--green);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--green-dim);">✅</div>
+        <h3>What Worked Well</h3>
+      </div>
+      <blockquote>"The overall product positioning is clear — Simployer positions itself as a complete HR platform covering the full employee lifecycle from onboarding to offboarding. The 'Complete' pricing tier bundles AI assistant, employee surveys, handbooks, expert support, and more into one package. The AI chatbot concept — integrated into Slack and Teams — is a smart approach. The language on the site is accessible and the Nordic market focus (Sweden, Norway) is strong. Expert product with legal knowledge base shows domain depth."</blockquote>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--red);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--red-dim);">🚫</div>
+        <h3>Critical Issues</h3>
+      </div>
+      <blockquote>"AI is mentioned as a headline feature but the details are surface-level. As a power user evaluating whether this vendor is 'ahead on AI,' I found only two concrete AI applications: a chatbot for handbook Q&amp;A and a chatbot for expert/legal Q&amp;A. There is no mention of AI-driven analytics, predictive workforce planning, AI-assisted performance reviews, intelligent automation, or any of the deeper AI capabilities I'd expect from a vendor positioning themselves as AI-forward. No pricing transparency — I can't find actual costs, only 'Boka demo' and 'Kom igång' CTAs. No dedicated AI capabilities page explaining the technology, training data approach, or GDPR handling of AI features."</blockquote>
+    </div>
+
+    <div class="dimension" style="border-left: 3px solid var(--yellow);">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">💡</div>
+        <h3>Key Opportunities</h3>
+      </div>
+      <blockquote>"The AI positioning creates a gap between promise and proof. A dedicated AI capabilities page with concrete use cases, data handling details, and a product roadmap would dramatically strengthen the story. The Complete tier bundling everything is good for my evaluation, but I need ROI evidence — case studies quantifying time saved, error reduction, or compliance risk lowered through AI. Integration ecosystem mentions are vague; I need to see specific connectors (payroll providers, ATS, LMS) and whether AI plays a role in those integrations."</blockquote>
+    </div>
+
+    <div class="verdict-box">
+      <span class="verdict-label maybe">CONDITIONAL — NOT YET CONVINCED</span>
+      <h3>Would Olivia buy Simployer based on their AI capabilities?</h3>
+      <p>As an HR Admin evaluating HRIS vendors specifically for AI leadership, Simployer shows <strong>intent</strong> but not yet <strong>depth</strong>. The AI offering is limited to chatbots for handbook and legal Q&amp;A — useful but not transformative. A vendor truly ahead on AI would demonstrate predictive analytics, intelligent workflow automation, AI-driven pay equity analysis, and smart onboarding personalization. Simployer's strength is their Nordic HR expertise and comprehensive product suite, but the AI positioning feels more like marketing than a mature capability. I would shortlist Simployer for their overall HRIS offering but would not choose them <em>because of</em> their AI capabilities — other vendors likely offer deeper AI functionality. I'd need a demo to see if the AI does more than what the website shows, but the website alone does not convince me they are "ahead" on AI.</p>
+    </div>
+
+  </div>
+
+  <!-- TAB 2: TASK FLOW -->
+  <div class="tab-panel" id="tab-flow">
+    <div class="flow-steps">
+
+      <div class="flow-step">
+        <div class="step-icon icon-bg-blue">1️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Landing on Homepage — simployer.com/sv/</div>
+          <div class="step-detail">The homepage greets me with the headline "Allt du förväntar dig av ett HR-system. Fast mer. Och nu med AI." This immediately sets my expectations — they're positioning AI as a key differentiator. I see the main navigation: Produkter, Lösningar, Kunskapshub, Om oss, Priser. Good structure. The page visually didn't render fully in the browser, but the content was extractable from the DOM.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon icon-bg-green">2️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Navigating to HRM Product Page — /sv/produkter/hrm</div>
+          <div class="step-detail">Found the HRM One (AlexisHR) product page. The page title says "HR-system | AlexisHR" which tells me they've integrated an acquisition (AlexisHR) into the Simployer suite. Key AI mention: "Förenkla vardagen och låt vår AI Chatbott flytta in hos er. Integrera med Slack eller Teams." This is a concrete AI feature — a chatbot integrated with collaboration tools. Also mentions data-driven insights: "Fråga efter insikterna du behöver och få det levererat direkt." But it's unclear if this is AI-powered analytics or just standard reporting.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon icon-bg-yellow">3️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Checking Pricing Page — /sv/priser</div>
+          <div class="step-detail">The pricing page shows a single "Complete" tier with the tagline "Allt du förväntar dig av ett HR-system. Fast mer. Och drivet av AI." The feature list includes: AI assistent, Medarbetarundersökningar, Personalkatalog, Expert, Digital Dokument &amp; E-signering, Expert Support, Arbetsflöden, Handböcker, On-/Offboarding, Kompetens, När-/Frånvaro, Lönekartläggning, HR-analys, Lönerevision, Visselblåsning, Målstyrning. Comprehensive feature set. But crucially — no actual prices shown. Only "Kom igång" CTAs. This forces me to book a demo just to understand cost, which is frustrating as a power user doing vendor evaluation.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon icon-bg-yellow">4️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Exploring Expert Product — /sv/produkter/expert</div>
+          <div class="step-detail">The Expert product focuses on legal and regulatory guidance. Found another AI mention: "Fråga vår AI-chatbot, så får du de svar du behöver direkt." They also note their AI is trained only on verified information. This covers HR, Lön (payroll), Nordic Labour Law, Skatt (tax), Moms (VAT), and Internationellt arbete. Strong domain-specific content, but the AI application is still a chatbot — no generative drafting, no intelligent document analysis, no automated compliance checking.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon icon-bg-blue">5️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Checking Handböcker (Handbooks) — /sv/produkter/handbocker</div>
+          <div class="step-detail">The Handbooks product features an AI chatbot for employees to ask questions about company policies instead of browsing through documents. Supports personalized content by team, location, and role. Expert-written templates with auto-updates based on legal changes. The AI chatbot here is the same pattern: a conversational interface on top of a knowledge base. Useful for Robert (employee), but for me as the system owner, I need more — like AI-suggested policy updates when laws change, or smart gap analysis.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon icon-bg-blue">6️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Reviewing About Page — /sv/om-oss</div>
+          <div class="step-detail">Simployer is established: 40 years (founded 1985 in Norway), 1.2M users across 12,000 customers, 300 employees across 6 offices in 3 countries. Backed by Ferd (Norwegian family investment firm). This gives me confidence in stability and longevity. They position themselves as "marknadsledare inom HR-lösningar i Skandinavien." However, the About page makes zero mention of AI strategy, R&amp;D investment, or technology vision — a missed opportunity for an AI-forward vendor.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon icon-bg-red">7️⃣</div>
+        <div class="step-body">
+          <div class="step-title">Searching for Dedicated AI Page — Not Found</div>
+          <div class="step-detail">I looked for a dedicated page explaining AI capabilities, technology approach, data handling, or AI roadmap. None exists. The AI mentions are scattered across product pages as feature bullets, not as a cohesive story. A vendor that is truly "ahead on AI" would have a dedicated section explaining their AI philosophy, what models they use, how they handle data privacy (especially for EU customers), and what's coming next. This absence is the biggest red flag for my evaluation.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 3: 6-DIMENSION EVALUATION -->
+  <div class="tab-panel" id="tab-evaluation">
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">🔍</div>
+        <h3>Findability</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"The main product categories are clear in the navigation — Produkter, Lösningar, Priser. I found the HRM product quickly via Produkter > HRM. But when I'm specifically evaluating AI capabilities, there's no quick path. AI is mentioned on the homepage hero, then scattered across individual product pages. I had to visit five separate pages to piece together what AI actually does. If I'm comparing vendors, I need a single page that says 'Here's our AI story.' Simployer doesn't give me that."</blockquote>
+      <blockquote>"The page titles were sometimes confusing — the HRM page is titled 'HRM | AlexisHR | Simployer,' which made me wonder if AlexisHR is the actual product or if Simployer is a reseller. It took me until the About page to understand this is an integrated acquisition. For a power user doing vendor evaluation, brand clarity matters."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">🛡️</div>
+        <h3>Trust &amp; Confirmation</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"The company's track record — 40 years, 1.2 million users, 12,000 customers, Ferd backing — is genuinely impressive and builds trust in the organization. Customer testimonials from recognizable Nordic companies (Learnifier, Bokio, Qred, Epidemic Sound) add credibility. But for AI specifically, trust requires transparency. They mention their AI is trained 'enbart på korrekt information' (only on correct information) — that's a reassuring statement but also vague. I need to know: What LLM powers it? Where is data processed? Is it GDPR-compliant? Is my employee data used for training? None of this is addressed."</blockquote>
+      <blockquote>"The Expert product's claim about AI being trained on verified legal information is the strongest trust signal for AI. But it's still a one-liner. For a purchase decision of this magnitude, I need a whitepaper or at least a detailed FAQ about AI data handling."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--green-dim);">💬</div>
+        <h3>Response Content Clarity</h3>
+        <span class="badge badge-green">Smooth</span>
+      </div>
+      <blockquote>"The copywriting is excellent. It's professional without being stiff, uses plain Swedish, and speaks directly to my pain points: 'Lägg mindre tid på admin och mer tid på det viktiga.' The pricing page's feature list uses clear labels I recognize from my daily work — Arbetsflöden, On- &amp; Offboarding, Visselblåsning, Lönekartläggning. No unnecessary jargon. Even the Expert product, which covers complex legal topics, describes its value in accessible terms."</blockquote>
+      <blockquote>"Where clarity breaks down is the AI messaging itself. 'Och nu med AI' is catchy but hollow. What does AI actually do for me day-to-day? The HRM page says 'Fråga efter insikterna du behöver och få det levererat direkt' — sounds like AI analytics, but could just be a reporting tool with a search bar. I can't tell. Marketing language is smooth but I need specifics to evaluate a vendor."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">➡️</div>
+        <h3>Follow-up Options Relevance</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"Every page funnels me toward 'Boka demo' or 'Kom igång.' For a general visitor, fine. But I'm in evaluation mode — I want to compare features, download a product sheet, see a feature matrix, read a technical whitepaper about integrations and AI. The site doesn't cater to the power-user evaluator. There's no 'For IT/HR decision-makers' section, no downloadable comparison guides, no self-service product tours."</blockquote>
+      <blockquote>"The Kunskapshub (Knowledge Hub) exists in the navigation but I didn't explore it in detail. It could contain deeper content, but the main product pages don't link to technical deep-dives. After reading the HRM page, my natural next step would be 'Show me the AI in action' — a product video, interactive demo, or sandbox. Instead, I get 'Boka demo.' That breaks my evaluation flow."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--yellow-dim);">💪</div>
+        <h3>Overall Confidence</h3>
+        <span class="badge badge-yellow">Mixed</span>
+      </div>
+      <blockquote>"I'm confident Simployer is a solid, established HRIS vendor for the Nordic market. The product breadth is impressive — HR core, handbooks, expert legal support, employee surveys, pay equity mapping, whistleblowing. That's a comprehensive suite. For a mid-size Nordic company, this is a serious contender."</blockquote>
+      <blockquote>"But on the specific question — is this vendor ahead on AI? — I'm not confident. The AI I can identify is an LLM-powered chatbot applied to two content domains (handbooks and legal knowledge). That's a solid first step, not a leadership position. Vendors who are 'ahead on AI' in HR-tech are doing predictive attrition models, AI-driven compensation benchmarking, intelligent document generation, automated compliance auditing, and AI co-pilots for managers. Simployer's website doesn't show any of this."</blockquote>
+    </div>
+
+    <div class="dimension">
+      <div class="dimension-header">
+        <div class="icon" style="background:var(--red-dim);">⚠️</div>
+        <h3>Surprises &amp; Concerns</h3>
+        <span class="badge badge-red">4 Issues</span>
+      </div>
+      <blockquote>"The AlexisHR branding on the HRM page is confusing. Is this Simployer's own system or an acquired product they're wrapping? If AlexisHR was a startup acquisition, I want to know: will it remain a separate codebase? Is the integration with the rest of the Simployer suite native or bolted on? This matters for data flow, permissions, and long-term roadmap."</blockquote>
+      <blockquote>"No pricing transparency at all. In 2026, SaaS vendors that hide pricing are increasingly penalized in vendor evaluations. I understand enterprise pricing varies, but not even ranges or a per-user starting point? I can't even begin to build an internal business case without this."</blockquote>
+      <blockquote>"The page rendering issues I encountered (blank hero areas, content only in DOM) suggest the site relies heavily on client-side JavaScript rendering. This could hurt SEO, accessibility, and load times for users with slower connections — a red flag about their frontend engineering maturity."</blockquote>
+      <blockquote>"No mention of API capabilities on the main product pages beyond a brief note about a Public API for handbooks. As a power user who needs to integrate with payroll, ATS, LMS, and ITSM tools, I need to see API documentation and integration marketplace, not just a promise of 'integrations.'"</blockquote>
+    </div>
+
+  </div>
+
+  <!-- TAB 4: FRICTION POINTS -->
+  <div class="tab-panel" id="tab-friction">
+    <ul class="friction-list">
+
+      <li class="friction-item">
+        <div class="severity">🔴</div>
+        <div class="friction-content">
+          <div class="friction-title">No dedicated AI capabilities page <span class="severity-label" style="background:var(--red-dim);color:var(--red);">Critical</span></div>
+          <div class="friction-desc">For a vendor positioning AI as a headline differentiator ("Och nu med AI"), there's no single page explaining what AI does, how it works, how data is handled, or what's on the roadmap. An HR Admin evaluating vendors for AI capabilities cannot form a complete picture without visiting 5+ pages and still coming away with only chatbot references.</div>
+        </div>
+      </li>
+
+      <li class="friction-item">
+        <div class="severity">🔴</div>
+        <div class="friction-content">
+          <div class="friction-title">AI depth is limited to chatbots <span class="severity-label" style="background:var(--red-dim);color:var(--red);">Critical</span></div>
+          <div class="friction-desc">The only concrete AI features across all product pages are: (1) AI chatbot for handbook Q&amp;A, (2) AI chatbot for legal/expert Q&amp;A, (3) vague "data-driven insights" on HRM page. No predictive analytics, no intelligent automation, no AI-assisted decision-making tools. For a buyer specifically evaluating AI maturity, this is insufficient to justify an "AI-forward" claim.</div>
+        </div>
+      </li>
+
+      <li class="friction-item">
+        <div class="severity">🔴</div>
+        <div class="friction-content">
+          <div class="friction-title">No pricing transparency <span class="severity-label" style="background:var(--red-dim);color:var(--red);">Critical</span></div>
+          <div class="friction-desc">The Priser page lists features in a "Complete" tier but shows no actual prices — not even ranges. Every path leads to "Boka demo" or "Kom igång." An HR Admin building a vendor comparison and internal business case needs at least ballpark pricing to determine if Simployer is within budget before investing time in demos.</div>
+        </div>
+      </li>
+
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">AlexisHR branding creates confusion <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">The HRM product page title reads "HRM | AlexisHR | Simployer" and customer quotes reference "Alexis" or "AlexisHR." For someone evaluating Simployer as a vendor, this dual branding raises questions about product maturity, integration depth, and whether this is a native solution or an acquired bolt-on.</div>
+        </div>
+      </li>
+
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">No AI data handling or GDPR information <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">The only mention is that AI is "trained only on correct information." For an HR Admin responsible for GDPR compliance, this is far too vague. Questions like "Is employee data sent to external LLMs?", "Where is AI processing happening?", and "Can we opt out of AI features?" are unanswered on the website.</div>
+        </div>
+      </li>
+
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">No self-service product exploration <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">No interactive demo, product tour, sandbox, or video walkthrough. A power user evaluating vendors wants to see the product before committing to a sales call. Competitors offering self-service product tours will win the attention of evaluators who want to qualify vendors independently before engaging sales.</div>
+        </div>
+      </li>
+
+      <li class="friction-item">
+        <div class="severity">🟡</div>
+        <div class="friction-content">
+          <div class="friction-title">Integration details are vague <span class="severity-label" style="background:var(--yellow-dim);color:var(--yellow);">Medium</span></div>
+          <div class="friction-desc">HRM page mentions "integrations for recruitment, user provisioning, payroll, and learning" but doesn't name specific providers, show an integration marketplace, or link to API documentation. The Handbooks page mentions a Public API but that's it. A power user needs to know if Simployer connects to their specific payroll and ATS systems.</div>
+        </div>
+      </li>
+
+      <li class="friction-item">
+        <div class="severity">🟢</div>
+        <div class="friction-content">
+          <div class="friction-title">Page rendering issues <span class="severity-label" style="background:var(--green-dim);color:var(--green);">Low</span></div>
+          <div class="friction-desc">Multiple pages showed blank hero areas and content only loading in the DOM but not rendering visually. While this could be a browser-specific issue, it suggests heavy JavaScript dependency that may affect users with slower connections, older browsers, or accessibility needs.</div>
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- TAB 5: CROSS-PERSONA MAP -->
+  <div class="tab-panel" id="tab-map">
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">Olivia (HR Admin) was the primary tester, evaluating simployer.com/sv/ for HRIS purchase decision-making focused on AI capabilities. Maria and Robert assessments are inferred from their persona profiles and what the website reveals about their potential experience.</p>
+    <table class="map-table">
+      <thead>
+        <tr>
+          <th style="width:22%;">Area</th>
+          <th style="width:26%;">Olivia (HR Admin)</th>
+          <th style="width:26%;">Maria (Manager)</th>
+          <th style="width:26%;">Robert (Employee)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="area">AI Chatbot (Handbooks)</td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Useful concept but needs GDPR/data clarity for approval</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Would reduce "quick HR question" interruptions from team</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Natural way to find policies — matches consumer expectations</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">AI Chatbot (Expert/Legal)</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">High value — verified legal info saves research time</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Helpful for quick checks but may still escalate to HR</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Unlikely to use — legal language is not Robert's domain</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Product Breadth</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Comprehensive suite covering full employee lifecycle</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">On/offboarding, approvals, performance — all covered</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Leave, docs, handbook, surveys — self-service essentials</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Pricing Transparency</td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Can't build business case without at least price ranges</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Less relevant — manager doesn't make purchasing decisions</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Not relevant to employee role</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Integration Ecosystem</td>
+          <td><div class="cell-indicator"><span class="dot dot-red"></span><span class="cell-note">Vague — no specific connectors or API docs linked</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Needs Slack/Teams integration to work — mentioned but unclear</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Mobile-responsive platform — no extra app needed</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Mobile Experience</td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Responsive platform claimed — good for distributed workforce</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Quick approvals on mobile would fit Maria's on-the-go style</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">No app download needed — matches Robert's low-friction expectations</span></div></td>
+        </tr>
+        <tr>
+          <td class="area">Compliance & GDPR</td>
+          <td><div class="cell-indicator"><span class="dot dot-yellow"></span><span class="cell-note">Expert product strong, but AI data handling not addressed</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Not a primary concern for Maria's role</span></div></td>
+          <td><div class="cell-indicator"><span class="dot dot-green"></span><span class="cell-note">Expects GDPR as baseline — not something Robert actively evaluates</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TAB 6: IMPROVEMENTS -->
+  <div class="tab-panel" id="tab-improvements">
+
+    <div class="priority-section">
+      <div class="priority-label critical">🔴 Critical — Blocked Evaluators</div>
+
+      <div class="improvement-card">
+        <h4>1. Create a dedicated AI capabilities page</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">AI mentioned on homepage hero and scattered across 3+ product pages as one-liner features. No consolidated view of AI capabilities, technology approach, or data handling.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">A dedicated /sv/ai or /sv/produkter/ai page explaining: what AI features exist today, how they work, what data they use, GDPR compliance, and the AI product roadmap.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">New page linked from main Produkter dropdown and homepage AI hero section</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>2. Add pricing transparency</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Priser page shows features in "Complete" tier but no actual pricing — not even starting prices or ranges.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Show per-user/month starting prices or price ranges, with a "Contact us for enterprise pricing" option for larger orgs. Allow evaluators to build a preliminary business case without a sales call.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">/sv/priser page — add price indicators to the Complete tier card</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>3. Expand AI beyond chatbots</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span><span class="tag">Maria</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">AI features are limited to two chatbot applications (handbook Q&amp;A and legal Q&amp;A). No AI in analytics, workflows, performance management, or compensation.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Develop and communicate AI applications in: predictive absence analytics, intelligent workflow suggestions, AI-assisted performance review summaries, pay equity AI analysis, and smart onboarding personalization.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Product roadmap communication and dedicated AI page</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-label important">🟡 Important — Caused Friction</div>
+
+      <div class="improvement-card">
+        <h4>4. Resolve AlexisHR dual branding</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">HRM page title shows "HRM | AlexisHR | Simployer" and customer quotes reference AlexisHR as a separate brand.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Unify branding under Simployer HRM. If AlexisHR heritage is important, mention it in an "Our story" section, not in the product page title and customer quotes.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">/sv/produkter/hrm page title, hero section, and customer testimonials</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>5. Add AI data handling / GDPR documentation</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Only mention is that AI is "trained on correct information." No details on data processing, LLM provider, data residency, or opt-out options.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Publish a clear AI & Data FAQ or trust page covering: LLM provider, data processing location, whether customer data is used for training, GDPR DPA specifics, and opt-out capabilities.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">New trust/security page or section on the AI capabilities page</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>6. Create an integration marketplace or directory</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Integrations mentioned vaguely ("recruitment, payroll, learning") with no specific providers, connector list, or API docs linked from product pages.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Create a /sv/integrationer page showing specific integrations by category (payroll, ATS, LMS, ITSM, collaboration) with logos and setup complexity indicators. Link to public API docs.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">New integrations directory page, linked from HRM product page and footer</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>7. Add self-service product exploration</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span><span class="tag">Maria</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">All paths lead to "Boka demo" with no way to explore the product independently — no interactive demo, product tour, video walkthrough, or sandbox.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Offer an interactive product tour or sandbox that lets evaluators experience the AI chatbot, dashboards, and key workflows before committing to a sales engagement.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Add "Try it yourself" or "Interactive tour" CTA alongside "Boka demo" on product pages</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-label nice">🟢 Nice to Have — Would Strengthen Evaluation</div>
+
+      <div class="improvement-card">
+        <h4>8. Add AI-specific case studies with metrics</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Customer testimonials are positive but generic ("effektiviserat vår HR-administration"). No quantified outcomes or AI-specific success stories.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Publish case studies showing: "AI chatbot reduced HR ticket volume by X%", "Time to answer reduced from days to seconds", or "Compliance risk reduced by X% through AI-assisted legal checks."</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">Customer stories section on AI page and HRM product page</span>
+        </div>
+      </div>
+
+      <div class="improvement-card">
+        <h4>9. Fix page rendering / JavaScript dependency</h4>
+        <div class="detail-row">
+          <span class="detail-label">Personas</span>
+          <span class="detail-value"><span class="tag">Olivia</span><span class="tag">Maria</span><span class="tag">Robert</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current</span>
+          <span class="detail-value">Pages show blank hero areas and content only loads in the DOM without visual rendering in some browser contexts.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Improved</span>
+          <span class="detail-value">Implement server-side rendering or static generation to ensure content is visible regardless of JavaScript execution context. Improves SEO, accessibility, and load performance.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">UI Target</span>
+          <span class="detail-value">All product pages — hero sections and content blocks</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TAB 7: CLAUDE CODE PROMPTS -->
+  <div class="tab-panel" id="tab-prompts">
+    <p class="prompt-intro">Ready-to-use prompts you can paste directly into Claude Code to implement the improvements found during testing. Each prompt is self-contained and references specific UI elements. Click "Copy" to copy a prompt to your clipboard.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--red);">🔴</span> Create dedicated AI capabilities page</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>Create a new page at /sv/produkter/ai (or /sv/ai) for Simployer's website that serves as the single source of truth for all AI capabilities.
+
+Current state: AI is mentioned on the homepage hero ("Och nu med AI"), on the HRM product page (AI chatbot for Slack/Teams), on the Expert page (AI chatbot for legal Q&A), and on the Handbooks page (AI chatbot for policy Q&A). But there is no consolidated page explaining AI.
+
+The new page should include:
+1. Hero section: "AI-driven HR — built for Nordic compliance" positioning
+2. Section: "What our AI does today" — list each AI feature with concrete use cases:
+   - AI chatbot for handbook Q&A (Slack/Teams integration)
+   - AI chatbot for legal/expert knowledge
+   - Data-driven HR insights
+3. Section: "How we handle your data" — GDPR compliance, data residency, LLM provider info, no customer data used for training, opt-out options
+4. Section: "What's coming next" — AI roadmap items (predictive analytics, smart workflows, etc.)
+5. Section: Customer proof points — quantified outcomes from AI features
+6. CTA: "See AI in action — Boka demo"
+
+Link this page from: the main Produkter dropdown, the homepage AI hero section, and each individual product page's AI mention.
+
+Match the existing Simployer.com design system (purple accent, clean Scandinavian style, responsive layout).</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--red);">🔴</span> Add pricing transparency to Priser page</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>Update the pricing page at /sv/priser to include actual pricing information.
+
+Current state: The Priser page shows a "Complete" tier with a feature list (AI assistent, Medarbetarundersökningar, Personalkatalog, Expert, etc.) but NO actual prices. All CTAs say "Kom igång" which leads to contact forms.
+
+Changes needed:
+1. Add a per-user/month starting price or price range to the Complete tier card (e.g., "Från XXX kr/användare/månad")
+2. Add a note: "Pris beror på antal anställda och valda moduler. Kontakta oss för en skräddarsydd offert."
+3. Consider adding a pricing calculator or slider (number of employees → estimated monthly cost)
+4. Keep "Boka demo" CTA but add a secondary CTA: "Se prisexempel" that shows sample configurations
+5. If full pricing can't be shown, at minimum add "Pricing starts at..." with the entry-level figure
+
+The goal: allow HR Admins doing vendor evaluations to determine if Simployer fits their budget before committing to a sales call.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Resolve AlexisHR dual branding on HRM page</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>Update the HRM product page at /sv/produkter/hrm to resolve confusing dual branding.
+
+Current state: The page title reads "HRM | AlexisHR | Simployer" and customer testimonials reference "Alexis" and "AlexisHR" as separate brands. This creates confusion for evaluators about whether this is Simployer's own product or a third-party integration.
+
+Changes needed:
+1. Change page title to "HRM | Simployer" (remove "AlexisHR")
+2. In the hero section, present the product as "Simployer HRM" — not "AlexisHR"
+3. Update customer testimonial copy that references "Alexis" or "AlexisHR" to reference "Simployer HRM" or "Simployer" instead. For example, change "Alexis är en modern HR-plattform" to "Simployer HRM är en modern HR-plattform"
+4. If heritage is important, add a small note: "Simployer HRM is built on the foundation of AlexisHR, which joined the Simployer family in [year]"
+5. Ensure the meta title and Open Graph tags also reflect unified branding
+
+This change ensures vendor evaluators see Simployer as one cohesive platform, not a collection of acquired products.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Add AI data handling & GDPR documentation</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>Create an AI Trust & Security section (either as part of the new AI capabilities page or as a standalone /sv/ai-trust page).
+
+Current state: The only AI data handling mention on the entire site is on the Expert page: "Självklart tränas våra AI lösningar enbart på korrekt information." This is too vague for an HR Admin responsible for GDPR compliance.
+
+The new section should answer:
+1. What LLM/AI models power the chatbot features?
+2. Where is AI data processed? (EU data residency?)
+3. Is customer/employee data used to train AI models? (Expected answer: No)
+4. What data does the AI chatbot have access to? (Only handbook content? Employee data?)
+5. How is AI output quality assured for legal/compliance content?
+6. Can organizations opt out of AI features entirely?
+7. Is there a Data Processing Agreement (DPA) specific to AI features?
+8. How are AI conversations logged and who can access them?
+
+Format: Clean FAQ-style layout with expandable sections. Include a downloadable AI DPA or link to the relevant trust documentation.
+
+This is critical for Nordic HR Admins who need to present a GDPR compliance case to their DPO before adopting AI-powered HR tools.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Create integration marketplace page</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>Create a new integrations directory page at /sv/integrationer.
+
+Current state: The HRM page vaguely mentions "Från rekrytering till användarprovisionering, lönehantering och lärande – vi har integrationerna ni behöver" but doesn't name specific tools. The Handbooks page mentions a Public API. No integration directory or API documentation is linked from product pages.
+
+The new page should include:
+1. Hero: "Bygg ditt HR-ekosystem" — emphasize seamless data flow
+2. Integration grid organized by category:
+   - Lönesystem (Payroll): list specific providers (e.g., Hogia, Visma, Fortnox)
+   - Rekrytering (ATS): list providers
+   - Lärande (LMS): list providers
+   - Samarbete (Collaboration): Slack, Microsoft Teams (highlight AI chatbot integration)
+   - IT & Provisioning: list providers
+   - Identitet (SSO/SCIM): list providers
+3. Each integration card: logo, name, brief description, and "native" vs "API" badge
+4. Section: "Build your own" — link to public API documentation
+5. CTA: "Saknar du en integration? Kontakta oss"
+
+Link this page from: footer, HRM product page's integration section, and Produkter dropdown.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--yellow);">🟡</span> Add self-service product exploration</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>Add an interactive product tour or demo option to Simployer's product pages.
+
+Current state: Every product page (HRM, Expert, Handbooks) ends with only "Boka demo" or "Kom igång" CTAs. There are no product screenshots, video walkthroughs, interactive demos, or sandbox environments. An evaluator cannot experience the product without engaging sales.
+
+Changes needed:
+1. On the HRM page (/sv/produkter/hrm): Add a "Se produkten i action" section with either:
+   - An embedded product video (2-3 min walkthrough of key features)
+   - An interactive demo (e.g., using Navattic, Storylane, or similar) showing the dashboard, leave management, and AI chatbot
+2. On all product pages: Add a secondary CTA button "Utforska själv" alongside "Boka demo"
+3. Consider a public demo environment: demo.simployer.com with sample data where evaluators can click around freely
+4. At minimum: add annotated product screenshots showing the actual UI on each product page
+
+Priority: HRM page first, then Expert and Handbooks pages.
+
+This addresses the power-user evaluator (Olivia) who wants to qualify vendors independently before investing time in sales meetings.</pre>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <h4><span style="color:var(--green);">🟢</span> Add AI-specific case studies with metrics</h4>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body">
+        <pre>Create or update customer case studies to include AI-specific outcomes with quantified metrics.
+
+Current state: Customer testimonials on the site are positive but generic — e.g., "effektiviserat vår HR-administration och frigjort tid." None reference AI features specifically, and none include quantified outcomes.
+
+Changes needed:
+1. Create 2-3 new case studies (or update existing ones) that specifically highlight AI chatbot usage:
+   - "How [Customer] reduced HR ticket volume by X% using Simployer's AI chatbot"
+   - "How [Customer] cut policy lookup time from X minutes to Y seconds"
+   - "How [Customer]'s managers answer 80% of HR questions without escalating, thanks to AI"
+2. Include quantified metrics: time saved, ticket reduction %, employee satisfaction scores, adoption rates
+3. Place these on the AI capabilities page (if created) and on relevant product pages
+4. Format: short case study cards with customer logo, headline metric, brief quote, and "Read more" link
+
+These proof points are critical for HR Admins building business cases for HRIS purchases — they need evidence that AI features deliver measurable ROI, not just marketing promises.</pre>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function copyPrompt(btn) {
+    const pre = btn.closest('.prompt-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
