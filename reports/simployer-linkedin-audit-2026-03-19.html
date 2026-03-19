@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simployer LinkedIn Audit — March 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090b;
+    --surface: #131316;
+    --surface2: #1c1c22;
+    --surface3: #26262e;
+    --border: #2a2a35;
+    --text: #ececf0;
+    --text-muted: #7c7c8a;
+    --accent: #a78bfa;
+    --accent-dim: rgba(167,139,250,0.10);
+    --accent-bright: #c4b5fd;
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.10);
+    --yellow: #fbbf24;
+    --yellow-dim: rgba(251,191,36,0.10);
+    --green: #34d399;
+    --green-dim: rgba(52,211,153,0.10);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96,165,250,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 32px; }
+
+  /* Header */
+  .header {
+    padding: 48px 0 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    line-height: 1.2;
+  }
+
+  h1 .purple { color: var(--accent-bright); }
+
+  .meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    padding-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .tab-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    padding: 14px 24px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent-bright); border-bottom-color: var(--accent); }
+
+  /* Content */
+  .content { padding: 32px 0 80px; }
+  .panel { display: none; animation: fadeUp 0.3s ease; }
+  .panel.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 16px;
+    margin-top: 36px;
+  }
+
+  .section-title:first-child { margin-top: 0; }
+
+  /* Score grid */
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .score-card .grade {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .score-card .grade.good { color: var(--green); }
+  .score-card .grade.mixed { color: var(--yellow); }
+  .score-card .grade.bad { color: var(--red); }
+
+  .score-card .score-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 14px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .card-header .icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+
+  .card-header h3 { font-size: 15px; font-weight: 600; }
+
+  .badge {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 16px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+  .badge-purple { background: var(--accent-dim); color: var(--accent-bright); }
+
+  .card p, .card li {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  .card p + p { margin-top: 10px; }
+
+  .card ul {
+    list-style: none;
+    margin-top: 8px;
+  }
+
+  .card ul li {
+    padding: 6px 0;
+    padding-left: 18px;
+    position: relative;
+  }
+
+  .card ul li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  /* Verdict callouts */
+  .callout {
+    border-left: 3px solid var(--border);
+    padding: 16px 20px;
+    border-radius: 0 10px 10px 0;
+    background: var(--surface2);
+    margin-top: 12px;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .callout.green { border-left-color: var(--green); }
+  .callout.yellow { border-left-color: var(--yellow); }
+  .callout.red { border-left-color: var(--red); }
+  .callout.purple { border-left-color: var(--accent); }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-top: 12px;
+  }
+
+  .compare-table th {
+    background: var(--surface2);
+    padding: 13px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-red { background: var(--red); }
+
+  /* Recs */
+  .rec-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 10px;
+  }
+
+  .rec-item h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rec-item p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .priority-label {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .pri-high { background: var(--red-dim); color: var(--red); }
+  .pri-med { background: var(--yellow-dim); color: var(--yellow); }
+  .pri-low { background: var(--green-dim); color: var(--green); }
+
+  /* Page architecture section */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .arch-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .arch-card .page-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-bright);
+    margin-bottom: 4px;
+  }
+
+  .arch-card .page-followers {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .arch-card .page-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .wrap { padding: 0 16px; }
+    h1 { font-size: 24px; }
+    .tab-btn { padding: 12px 16px; font-size: 12px; }
+    .card { padding: 18px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <div class="header-label">LinkedIn Audit</div>
+    <h1>Simployer — <span class="purple">Full LinkedIn Presence Audit</span></h1>
+    <div class="meta">
+      <span class="meta-item">📅 March 19, 2026</span>
+      <span class="meta-item">🔗 linkedin.com/company/simployergroup</span>
+      <span class="meta-item">📊 Brand · Content · AI Narrative · Employer Brand</span>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="wrap" style="display:flex;gap:0;">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="brand">Brand & Positioning</button>
+    <button class="tab-btn" data-tab="content">Content Strategy</button>
+    <button class="tab-btn" data-tab="ai">AI Narrative</button>
+    <button class="tab-btn" data-tab="employer">Employer Brand</button>
+    <button class="tab-btn" data-tab="architecture">Page Architecture</button>
+    <button class="tab-btn" data-tab="recs">Recommendations</button>
+  </div>
+</div>
+
+<div class="wrap">
+<div class="content">
+
+<!-- ======================== OVERVIEW ======================== -->
+<div class="panel active" id="tab-overview">
+
+  <div class="score-grid">
+    <div class="score-card">
+      <div class="grade mixed">C+</div>
+      <div class="score-label">Brand & Positioning</div>
+    </div>
+    <div class="score-card">
+      <div class="grade bad">D+</div>
+      <div class="score-label">Content Strategy</div>
+    </div>
+    <div class="score-card">
+      <div class="grade mixed">C</div>
+      <div class="score-label">AI-First Narrative</div>
+    </div>
+    <div class="score-card">
+      <div class="grade mixed">C+</div>
+      <div class="score-label">Employer Branding</div>
+    </div>
+    <div class="score-card">
+      <div class="grade bad">D</div>
+      <div class="score-label">Page Architecture</div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--accent);">
+    <div class="card-header">
+      <div class="icon" style="background:var(--accent-dim);">🎯</div>
+      <h3>Executive Summary</h3>
+    </div>
+    <p>Simployer has a <strong>fragmented LinkedIn presence spread across 6+ pages</strong> (Group, Norge, Sverige, &frankly, AlexisHR, Tech Polska) that dilutes brand authority and splits follower growth. The Group page — the natural "home" — has only ~991 followers versus ~8,700 for Sverige and ~6,400 for Norge.</p>
+    <p>Content is overwhelmingly <strong>local-language, compliance-topic webinar promos</strong> — valuable for existing followers but invisible to the broader HR-tech audience. There is almost no English-language thought leadership, no technical storytelling, and the AI narrative (Sia, analytics, hackathons) appears in bursts without a sustained drumbeat.</p>
+    <p>The recent <strong>Purple Club community launch</strong> and <strong>brand refresh for the 40th anniversary</strong> are strong strategic moves that haven't yet translated into a distinctive LinkedIn content rhythm. The CPO departure (Caroline Fjellner, early 2026) creates both a leadership-voice gap and a moment to reset the narrative.</p>
+  </div>
+
+  <div class="callout green">
+    <strong>What's Working:</strong> Purple Club community-building, Sia product launch communications, local-market expert credibility (legal/compliance), 500 MNOK ARR milestone storytelling, hackathon culture visibility.
+  </div>
+
+  <div class="callout red" style="margin-top:10px;">
+    <strong>Critical Gaps:</strong> No unified English-language page strategy, near-zero AI thought leadership cadence, fragmented follower base across 6+ pages, content is event-driven rather than narrative-driven, no employee advocacy program visible, no founder/CEO personal brand presence at scale.
+  </div>
+
+  <div class="callout yellow" style="margin-top:10px;">
+    <strong>Key Opportunity:</strong> Simployer is repositioning as AI-first HR. LinkedIn is where Nordic HR decision-makers live. The gap between <em>what Simployer is building</em> (Sia, AI analytics, role-based dashboards) and <em>what the LinkedIn presence communicates</em> (webinar promos and compliance tips) is enormous. Closing this gap is a high-leverage move — especially with the website redesign landing soon.
+  </div>
+
+</div>
+
+<!-- ======================== BRAND & POSITIONING ======================== -->
+<div class="panel" id="tab-brand">
+
+  <div class="section-title">Brand Messaging Analysis</div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--yellow-dim);">💬</div>
+      <h3>Tagline & Value Proposition</h3>
+      <span class="badge badge-yellow">Mixed</span>
+    </div>
+    <p>The Group page tagline is <em>"Our unique combination of HR Tech and local expertise, makes companies unleash the full potential in their people."</em> This is a legacy positioning statement — it communicates breadth but not differentiation. Every HR-tech vendor claims to "unleash potential." The word "unique" does zero heavy lifting when not backed by specifics.</p>
+    <p>The Sverige page uses a Swedish variant of the same. Norge mirrors it in Norwegian. None of them mention AI, automation, Sia, compliance intelligence, or anything that would make a scrolling HR leader stop.</p>
+    <div class="callout yellow">The careers site has a much stronger pitch: "combining HR processes, analytics, learning, compliance, and AI-driven capabilities in one seamless experience." This copy should migrate to LinkedIn — it's specific, modern, and closer to the actual product story.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--red-dim);">🏷️</div>
+      <h3>Visual Identity on LinkedIn</h3>
+      <span class="badge badge-red">Weak</span>
+    </div>
+    <p>The purple brand refresh ("The Purple Club") is a strong visual signal, but it hasn't propagated across all LinkedIn pages. The Group page banner, profile imagery, and featured sections feel dated compared to the Purple Club community site, which is polished and modern.</p>
+    <p>The sub-brand pages (AlexisHR, &frankly) carry their own visual identities that don't visually connect to the Simployer parent brand. A visitor clicking between pages gets no sense of a unified platform.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--green-dim);">🏆</div>
+      <h3>Proof Points & Social Proof</h3>
+      <span class="badge badge-green">Solid</span>
+    </div>
+    <p>Simployer has strong numbers that are underutilized on LinkedIn: 500 MNOK ARR, 40+ years in the market, 15,000+ customers, 1.2M users, operations in 4 countries. These aren't visible in the About section in a skimmable way. The 500 MNOK milestone got one post — it deserves to be a pinned Featured item and part of the ongoing narrative.</p>
+  </div>
+
+</div>
+
+<!-- ======================== CONTENT STRATEGY ======================== -->
+<div class="panel" id="tab-content">
+
+  <div class="section-title">Content Audit Findings</div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--red-dim);">📊</div>
+      <h3>Content Mix & Frequency</h3>
+      <span class="badge badge-red">Weak</span>
+    </div>
+    <p>The dominant content pattern across all Simployer pages is: <strong>webinar promo → compliance/legal topic → customer welcome → webinar promo</strong>. This is a lead-gen content calendar, not a thought-leadership strategy. It works for conversion but does nothing for brand reach or algorithmic distribution.</p>
+    <p>Post frequency appears inconsistent — long gaps followed by clusters around events or product launches. On the 2026 LinkedIn algorithm (360Brew), consistency and engagement velocity in the first hour are critical signals. Sporadic posting tanks organic reach.</p>
+    <ul>
+      <li><strong>~70% of visible posts</strong> are webinar or event promotions</li>
+      <li><strong>~15%</strong> are customer announcements or internal celebrations</li>
+      <li><strong>~10%</strong> are product news (Sia launch, analytics, dashboards)</li>
+      <li><strong>~5%</strong> could be considered thought leadership</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--yellow-dim);">🌐</div>
+      <h3>Language Strategy</h3>
+      <span class="badge badge-yellow">Mixed</span>
+    </div>
+    <p>The local pages post almost exclusively in Norwegian/Swedish. The Group page mixes English and local languages inconsistently. This means <strong>there is no coherent English-language presence</strong> for international audiences, investors, potential hires, or the broader HR-tech conversation.</p>
+    <p>For a company with 500M+ NOK ARR and Nordic expansion ambitions, this is a significant visibility gap. International HR-tech media, analysts, and VC/PE audiences default to English on LinkedIn.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--red-dim);">💡</div>
+      <h3>Format & Engagement Quality</h3>
+      <span class="badge badge-red">Weak</span>
+    </div>
+    <p>Posts are heavily link-based (linking to webinar sign-ups, blog posts, forms). LinkedIn's algorithm deprioritizes external links — they consistently get 40-60% less reach than native content. There's minimal use of the formats that drive 2026 engagement:</p>
+    <ul>
+      <li>No carousel/document posts (which drive saves, the highest-weight engagement signal)</li>
+      <li>Very few native video posts (the hackathon and CPO/CTO video are exceptions)</li>
+      <li>No data visualizations, infographics, or framework posts</li>
+      <li>No polls, collaborative articles, or conversation starters</li>
+      <li>Hashtag strategy is generic (#hr #hrtech #simployer) — not niche enough for algorithmic topic matching</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ======================== AI NARRATIVE ======================== -->
+<div class="panel" id="tab-ai">
+
+  <div class="section-title">AI-First Positioning on LinkedIn</div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--accent-dim);">🤖</div>
+      <h3>Sia — Product Launch Visibility</h3>
+      <span class="badge badge-yellow">Mixed</span>
+    </div>
+    <p>The Sia AI assistant launch (April 2025) was communicated via a company blog post and amplified by individual sales reps like Christopher Robin Nordmo. The product page is solid. But the LinkedIn launch was a <strong>single-moment event, not a sustained narrative</strong>.</p>
+    <p>Compare this to how competitors like HiBob, Personio, or Rippling create multi-week launch campaigns with teaser content, customer testimonials, behind-the-scenes engineering posts, and founder commentary. Sia got one announcement cycle and then disappeared from the content calendar.</p>
+    <div class="callout purple">Sia is arguably Simployer's strongest competitive differentiator — an AI assistant integrated into the HRM with role-based responses, Teams/Slack integration, and escalation to human experts. This story is barely being told on LinkedIn. The December 2025 role-based dashboard launch and AI Insights Hub are also under-communicated.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--yellow-dim);">🧠</div>
+      <h3>AI Thought Leadership</h3>
+      <span class="badge badge-red">Weak</span>
+    </div>
+    <p>There are scattered AI-adjacent posts: a blog about AI bias by a developer, a hackathon with AI focus, and a webinar on "how HR should think strategically about AI." But there is no visible, recurring AI thought leadership presence — no named AI lead posting regularly, no "building in public" engineering content, no opinion pieces on where HR AI is going.</p>
+    <p>The existing content frames AI as something Simployer is exploring, not something they're leading. The tone is cautious and educational rather than assertive and visionary. For a company that has actually shipped an AI product (Sia) integrated into an HRM used by 1.2M people, this undersells the reality significantly.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--blue-dim);">📐</div>
+      <h3>Gap: What the Product Team Is Building vs. What LinkedIn Communicates</h3>
+      <span class="badge badge-red">Critical Gap</span>
+    </div>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:40%;">What Simployer Has Shipped</th>
+          <th style="width:30%;">Visible on LinkedIn?</th>
+          <th style="width:30%;">Opportunity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sia AI assistant (HRM + Teams/Slack)</td>
+          <td><span class="dot dot-yellow"></span>One-time launch post</td>
+          <td>Recurring "Sia in the wild" series</td>
+        </tr>
+        <tr>
+          <td>AI Insights Hub (trending employee questions)</td>
+          <td><span class="dot dot-red"></span>Blog post only</td>
+          <td>"What employees are really asking" data posts</td>
+        </tr>
+        <tr>
+          <td>Role-based dashboards (HR/Manager/Employee)</td>
+          <td><span class="dot dot-red"></span>Blog post only</td>
+          <td>Before/after visual carousels</td>
+        </tr>
+        <tr>
+          <td>AI chatbot for analytics queries</td>
+          <td><span class="dot dot-red"></span>Barely mentioned</td>
+          <td>"Ask your HRIS anything" demo content</td>
+        </tr>
+        <tr>
+          <td>Expert escalation (AI → human lawyer)</td>
+          <td><span class="dot dot-red"></span>Not visible</td>
+          <td>Unique differentiator vs. pure-play AI</td>
+        </tr>
+        <tr>
+          <td>AlexisHR + &frankly integration</td>
+          <td><span class="dot dot-yellow"></span>Mentioned on sub-pages</td>
+          <td>Platform consolidation narrative</td>
+        </tr>
+        <tr>
+          <td>Annual hackathon (AI-focused)</td>
+          <td><span class="dot dot-green"></span>Good visibility</td>
+          <td>Expand into year-round eng. content</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ======================== EMPLOYER BRAND ======================== -->
+<div class="panel" id="tab-employer">
+
+  <div class="section-title">Employer Branding & Talent Attraction</div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--green-dim);">💜</div>
+      <h3>Purple Club — Community-Led Brand Building</h3>
+      <span class="badge badge-green">Strong Move</span>
+    </div>
+    <p>The Purple Club is Simployer's best recent LinkedIn-adjacent initiative. It's a branded HR community with 600+ members in months, physical events in Oslo and Stockholm, and a new "Purple Minds" peer-group program. The community site is well-designed and the positioning ("shaping the Future of HR") is sharp.</p>
+    <p>However, Purple Club content on LinkedIn is still primarily promoted through individual sales reps' profiles rather than becoming a pillar of the company page strategy. The community's energy should be flowing back into the company page as social proof, member spotlights, and discussion content.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--yellow-dim);">👥</div>
+      <h3>Employee Advocacy & Personal Brands</h3>
+      <span class="badge badge-yellow">Mixed</span>
+    </div>
+    <p>A few individuals — Christopher Robin Nordmo (AE), Eilin Gillesen (CPCO), Linn Karoline Brynildsen (developer) — post Simployer-related content on their personal profiles. But there's no visible structured advocacy program. No coordinated "Simployee stories" series, no engineering blog posts amplified through personal accounts, no design or product voices present.</p>
+    <p>With the CPO (Caroline Fjellner) departing in early 2026, one of the more visible senior voices is gone. The CEO (Vigleik Takle) has limited personal LinkedIn presence for a company at this scale.</p>
+    <div class="callout yellow">In 2026, company pages are declining in reach while personal profiles are where engagement and trust live. A structured employee advocacy program — even just 5-10 key voices posting 1x/week — would multiply Simployer's effective reach by 3-5x.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--red-dim);">🎯</div>
+      <h3>Talent Attraction for Tech Roles</h3>
+      <span class="badge badge-red">Weak</span>
+    </div>
+    <p>The Tech Polska page has virtually no content. There's no visible engineering culture content beyond the annual hackathon. For a company hiring developers across Norway, Sweden, and Poland, the LinkedIn presence does almost nothing to attract technical talent.</p>
+    <p>No "day in the life" content, no tech stack deep-dives, no engineering blog posts, no open-source contributions highlighted, no conference talk amplification. The careers page copy is strong but it's not being syndicated to LinkedIn in a compelling way.</p>
+  </div>
+
+</div>
+
+<!-- ======================== PAGE ARCHITECTURE ======================== -->
+<div class="panel" id="tab-architecture">
+
+  <div class="section-title">LinkedIn Page Landscape</div>
+
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="page-name">Simployer (Group)</div>
+      <div class="page-followers">~991</div>
+      <div class="page-note">English + mixed · Lowest followers despite being parent</div>
+    </div>
+    <div class="arch-card">
+      <div class="page-name">Simployer Sverige</div>
+      <div class="page-followers">~8,668</div>
+      <div class="page-note">Swedish · Largest following · Compliance/HR content</div>
+    </div>
+    <div class="arch-card">
+      <div class="page-name">Simployer Norge</div>
+      <div class="page-followers">~6,409</div>
+      <div class="page-note">Norwegian · Legal/webinar heavy · Podcast presence</div>
+    </div>
+    <div class="arch-card">
+      <div class="page-name">Simployer | &frankly</div>
+      <div class="page-followers">~2,500+</div>
+      <div class="page-note">Swedish · Engagement survey focused · Separate brand</div>
+    </div>
+    <div class="arch-card">
+      <div class="page-name">AlexisHR</div>
+      <div class="page-followers">~2,751</div>
+      <div class="page-note">English · AI/HRIS messaging · Best AI-adjacent tone</div>
+    </div>
+    <div class="arch-card">
+      <div class="page-name">Simployer Tech Polska</div>
+      <div class="page-followers">???</div>
+      <div class="page-note">Minimal content · Gdańsk-based dev team</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+      <div class="icon" style="background:var(--red-dim);">⚠️</div>
+      <h3>The Fragmentation Problem</h3>
+      <span class="badge badge-red">Critical</span>
+    </div>
+    <p>Simployer's combined LinkedIn following across all pages is roughly <strong>~21,000+</strong>. But the Group page — the only one that speaks to the company's full story — has less than 1,000 followers. This means:</p>
+    <ul>
+      <li>Product announcements (Sia, dashboards, analytics) on the Group page reach almost nobody</li>
+      <li>International audiences have no meaningful entry point</li>
+      <li>The AI-first narrative has no "home base" with reach</li>
+      <li>Each sub-page builds its own isolated audience that never cross-pollinates</li>
+      <li>Acquired brands (AlexisHR, &frankly) maintain separate identities that compete with the parent brand</li>
+    </ul>
+    <div class="callout red">This is the single highest-impact structural problem. A content strategy can't compensate for an architecture where the most important messages go to the smallest audience.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon" style="background:var(--accent-dim);">🗺️</div>
+      <h3>Recommended Architecture</h3>
+      <span class="badge badge-purple">Proposal</span>
+    </div>
+    <p>Two viable paths forward:</p>
+    <p><strong>Option A — Consolidate to Group page:</strong> Migrate followers from local pages to the Group page through a coordinated campaign. Post in English as default with local-language content as supplementary. This is the "one brand, one page" approach that maximizes algorithmic reach per post. High effort, high payoff.</p>
+    <p><strong>Option B — Hub-and-spoke:</strong> Keep local pages for local-language compliance content and event promotion. Elevate the Group page as the English-language "flagship" for product, AI, thought leadership, and employer brand content. Cross-promote aggressively. This preserves local follower equity while building the Group page. Medium effort, medium payoff.</p>
+    <div class="callout purple">Either way, the first move is the same: make the Group page worth following. Pin a featured section with the Sia story, 500M ARR milestone, and Purple Club. Update the tagline to reference AI. Start posting 2-3x/week in English with substance.</div>
+  </div>
+
+</div>
+
+<!-- ======================== RECOMMENDATIONS ======================== -->
+<div class="panel" id="tab-recs">
+
+  <div class="section-title">🔴 High Priority — Do This Quarter</div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-high">High</span> Rewrite the Group page About & tagline</h4>
+    <p>Replace the "unique combination of HR Tech and local expertise" tagline with something specific to the AI+expertise positioning. Mention Sia, 1.2M users, 15K customers, and the Nordic focus. Use the careers page copy as a starting point — it's already better than what's on LinkedIn.</p>
+  </div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-high">High</span> Launch a "Building the AI HR Platform" content series</h4>
+    <p>Weekly posts on the Group page (English) telling the Sia + AI analytics + role-based dashboard story. Mix formats: carousel explainers, short native video, customer quotes, data points. This is the missing heartbeat. The website redesign landing gives you a natural "new chapter" moment to kick this off.</p>
+  </div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-high">High</span> Pin a Featured section on the Group page</h4>
+    <p>Three items: (1) Sia product page or launch video, (2) Purple Club community page, (3) 500 MNOK ARR milestone or a "why Simployer" overview. This is free real estate that's currently empty or underused.</p>
+  </div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-high">High</span> Activate 5 employee advocates with personal posting</h4>
+    <p>Identify 5 key voices (CEO, a product leader, a designer, an engineer, a customer success lead). Give them a loose brief: 1 post per week, personal perspective on what they're building or learning. Provide a shared prompt bank. Company pages are declining — personal profiles are the distribution engine in 2026.</p>
+  </div>
+
+  <div class="section-title">🟡 Medium Priority — This Half</div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-med">Medium</span> Create "What Employees Are Really Asking" data content</h4>
+    <p>Sia's AI Insights Hub aggregates what managers and employees ask the chatbot. This is a goldmine for original data content. Monthly LinkedIn posts with anonymized trending questions across Nordic workplaces would be highly shareable and position Simployer as having unique data access others don't.</p>
+  </div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-med">Medium</span> Purple Club → LinkedIn content pipeline</h4>
+    <p>Member spotlights, event recaps, discussion highlights, and "HR hot takes" from Purple Club sessions should flow back to the Group page as native content. The community is generating conversations — capture and redistribute them.</p>
+  </div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-med">Medium</span> Unify visual identity across all pages</h4>
+    <p>Update banners, logos, and About sections across all 6+ pages to reflect the Purple brand refresh. Right now a visitor hopping between pages gets a disjointed experience. Even if pages stay separate, they should visually feel like one family.</p>
+  </div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-med">Medium</span> Kill external links in posts — go native</h4>
+    <p>Stop posting webinar links as the main content. Instead: write the insight as a native text post, put the link in the first comment. Or create a carousel summarizing the webinar topic and mention registration in the comments. This alone can 2-3x organic reach per post.</p>
+  </div>
+
+  <div class="section-title">🟢 Nice to Have — Ongoing</div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-low">Nice</span> Engineering culture content for Tech Polska</h4>
+    <p>Either revive the Tech Polska page with developer-focused content (tech stack, hackathon deep-dives, conference talks) or route engineering content to the Group page. The annual hackathon is a great proof point that needs year-round amplification.</p>
+  </div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-low">Nice</span> Competitor content benchmarking</h4>
+    <p>Set up monthly tracking of HiBob, Personio, Hailey HR, and BambooHR LinkedIn pages. Compare follower growth, engagement rates, content mix, and AI narrative maturity. Use this to calibrate Simployer's content ambition.</p>
+  </div>
+
+  <div class="rec-item">
+    <h4><span class="priority-label pri-low">Nice</span> LinkedIn newsletter launch</h4>
+    <p>A monthly English-language LinkedIn newsletter ("The Purple Brief" or similar) covering AI in HR, Nordic workplace trends, and Sia product updates. Newsletter subscribers get guaranteed delivery — it bypasses the feed algorithm entirely.</p>
+  </div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
