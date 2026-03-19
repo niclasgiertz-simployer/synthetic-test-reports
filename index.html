@@ -143,9 +143,98 @@
     color: var(--text-muted);
   }
 
+  /* Get Started section */
+  .get-started {
+    margin-top: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 30px;
+  }
+
+  .get-started h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .get-started h2 span { color: var(--accent); }
+
+  .get-started .desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+    padding-top: 3px;
+  }
+
+  .step-text code {
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .download-btn:hover {
+    background: #5a7ae6;
+    transform: translateY(-1px);
+  }
+
   @media (max-width: 600px) {
     .container { padding: 24px 16px; }
     h1 { font-size: 22px; }
+    .get-started { padding: 20px 18px; }
   }
 </style>
 </head>
@@ -160,6 +249,31 @@
       <div class="icon">🧪</div>
       <p>No test reports yet. Add HTML reports to the <code>/reports</code> folder.</p>
     </div>
+  </div>
+
+  <div class="get-started">
+    <h2>Run your own <span>tests</span></h2>
+    <p class="desc">Download the skill, install it in Claude, and start running persona-based UX tests. Your reports will appear on this page when you push them to the repo.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Download the <code>.skill</code> file below and install it in Claude (drag it in, or use "Copy to your skills")</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Tell Claude: <code>"Test [URL] as Olivia"</code> — it will navigate the site, evaluate it through the persona's eyes, and generate an interactive HTML report</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Push the HTML report to the <a href="https://github.com/niclasgiertz-simployer/synthetic-test-reports" style="color:var(--accent);">GitHub repo</a> under <code>reports/</code> and it auto-deploys here</div>
+      </div>
+    </div>
+
+    <a class="download-btn" href="synthetic-user-testing.skill" download>
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Skill
+    </a>
   </div>
 
   <div class="footer">
